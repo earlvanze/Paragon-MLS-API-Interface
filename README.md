@@ -15,18 +15,31 @@ From https://developers.google.com/sheets/api/quickstart/python
 To run this quickstart, you'll need:
 
 Python 2.6 or greater.
+
 The pip package management tool.
+
 A Google account.
 
 ## Step 1: Turn on the Google Sheets API
 Use <a href="https://console.developers.google.com/start/api?id=sheets.googleapis.com">this wizard</a> to create or
-select a project in the Google Developers Console and automatically turn on the API. Click Continue, then Go to credentials.
+select a project in the Google Developers Console and automatically turn on the API.
+
+Click Continue, then Go to credentials.
+
 On the Add credentials to your project page, click the Cancel button.
-At the top of the page, select the OAuth consent screen tab. Select an Email address, enter a Product name if not already set, and click the Save button.
+
+At the top of the page, select the OAuth consent screen tab.
+
+Select an Email address, enter a Product name if not already set, and click the Save button.
+
 Select the Credentials tab, click the Create credentials button and select OAuth client ID.
+
 Select the application type Other, enter the name "Google Sheets API Quickstart", and click the Create button.
+
 Click OK to dismiss the resulting dialog.
+
 Click the file_download (Download JSON) button to the right of the client ID.
+
 Move this file to your working directory and rename it client_secret.json.
 
 
@@ -37,7 +50,8 @@ pip install --upgrade pandas httplib2 google-api-python-client oauth2client
 ```
 See the library's <a href="https://developers.google.com/api-client-library/python/start/installation">installation page</a> for the alternative installation options.
 
-## Step 3: Make your own copy of the Google spreadsheet linked above and replace the SPREADSHEET_ID (line 18 of main.py)
+## Step 3: Make a copy of spreadsheet and update main.py
+Make your own copy of the Google spreadsheet linked above and replace the SPREADSHEET_ID (line 18 of main.py)
 with your own spreadsheet's ID (derived from the URL https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID})
 
 ## Step 4: Run the program
