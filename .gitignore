@@ -1,4 +1,4 @@
 *.json
 *.csv
-/listings_temp
+/listings
 /venv

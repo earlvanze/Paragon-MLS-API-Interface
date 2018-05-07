@@ -20,7 +20,7 @@ RANGE_NAME = 'Four-Square Analysis!A:AW'
 MLS_ID = "6d70b762-36a4-4ac0-bedd-d0dae2920867"
 
 # You generally don't need to change these
-PROPERTIES_FOLDER = "listings_temp"
+PROPERTIES_FOLDER = "listings"
 # {0} is the MLS number for a property and {1} is a guid generated from http://crmls.paragonrels.com/CollabLink/public/CreateGuid
 PARAGON_API_URL = "http://crmls.paragonrels.com/CollabLink/public/BlazeGetRequest?ApiAction=listing%2FGetListingDetails%2F" \
                   "&UrlData={0}%2F0%2F2%2Ffalse%2F{1}"
@@ -236,7 +236,7 @@ def parse_json(properties_folder = args.properties_folder):
                     output_data[i][2] = price_prev
                     output_data[i][3] = price_current
                     output_data[i][9] = age
-                    output_data[i][10] = type + ' ' + beds + 'BD' + '/' + baths_full + '.' + xstr(baths_part) + 'BA'
+                    output_data[i][10] = type + '\n' + beds + 'BD' + '/' + baths_full + '.' + xstr(baths_part) + 'BA'
                     output_data[i][11] = public_remarks
                     output_data[i][12] = unit1_rent
                     output_data[i][13] = unit2_rent
