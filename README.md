@@ -2,7 +2,7 @@
 ### For Automated Four-Square Analysis of Rental Properties
 
 This program takes in an ID from a Paragonrels.com URL and automatically populates the following
-<a href="https://docs.google.com/spreadsheets/d/1QkDOfVxw0rtfB-XNEbWCAZEqY5njoIm8PDpvjpNCRrI">Google Spreadsheet</a>
+<a href="https://docs.google.com/spreadsheets/d/1S-Vqsw_JyrCo6_zziWM_llZNl8AU92MeLZx9Xp5lMyw/edit?usp=divesdk"> Google Spreadsheet</a>
 in order to calculate Cash Flow and Cash-on-Cash Return for investment properties.
 Row 2 of the spreadsheet has formulas that automatically populate with calculations for each new row.
 I recommend leaving these formulas in place.
