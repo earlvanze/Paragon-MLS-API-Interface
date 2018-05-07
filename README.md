@@ -12,11 +12,11 @@ This spreadsheet was derived from the PDF available at
 ## Prerequisites
 From https://developers.google.com/sheets/api/quickstart/python
 
-To run this quickstart, you'll need:
+To run this program, you'll need:
 
 Python 2.6 or greater.
 
-The pip package management tool.
+The <a href="https://pypi.python.org/pypi/pip">pip</a> package management tool.
 
 A Google account.
 
