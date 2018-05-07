@@ -12,24 +12,24 @@ from apiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
 
-
-PROPERTIES_FOLDER = "listings_temp"
-
+# You should change these to match your spreadsheet.
 SPREADSHEET_ID = '1QkDOfVxw0rtfB-XNEbWCAZEqY5njoIm8PDpvjpNCRrI'
 RANGE_NAME = 'Four-Square Analysis!A:AW'
 
-MLS_ID = "ab87fcd7-935f-4767-a078-debdf1869dea"
+# MLS_ID gets passed in by user but default is here if none passed in
 MLS_ID = "6d70b762-36a4-4ac0-bedd-d0dae2920867"
 
+# You generally don't need to change these
+PROPERTIES_FOLDER = "listings_temp"
 # {0} is the MLS number for a property and {1} is a guid generated from http://crmls.paragonrels.com/CollabLink/public/CreateGuid
 PARAGON_API_URL = "http://crmls.paragonrels.com/CollabLink/public/BlazeGetRequest?ApiAction=listing%2FGetListingDetails%2F" \
                   "&UrlData={0}%2F0%2F2%2Ffalse%2F{1}"
-
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) '
                          'AppleWebKit/537.36 (KHTML, like Gecko) '
                          'Chrome/39.0.2171.95 Safari/537.36',
            'Cookie': 'psystemid={0};pagentid={1};pofficeid={2};'        # this gets updated in in get_mls_numbers
 }
+
 
 # Used to search for keys in nested dictionaries and handles when key does not exist
 # Example: DictQuery(dict).get("dict_key/subdict_key")
@@ -238,6 +238,7 @@ def parse_json(args, properties_folder = PROPERTIES_FOLDER):
     output_data = [x for x in output_data if x[0] != None]    # delete empty rows (inactive listings) from output_data
     print (output_data)
     return (output_data)
+
 
 def save_csv(output_data = [[None] * 50]):
     columns = ['Address',
