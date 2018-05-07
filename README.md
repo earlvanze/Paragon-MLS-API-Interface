@@ -1,7 +1,11 @@
 # Paragon Real Estate Multiple Listing Service API Interface
-### For Automated Four-Square Cash Flow Analysis of Investment Properties
+### For Automated Four-Square Analysis of Rental Properties
 
-Accompanying spreadsheet available at: https://docs.google.com/spreadsheets/d/1QkDOfVxw0rtfB-XNEbWCAZEqY5njoIm8PDpvjpNCRrI/edit?pli=1#gid=2102309284
+This program takes in an ID from a Paragonrels.com URL and automatically populates the following Google Spreadsheet:
+https://docs.google.com/spreadsheets/d/1QkDOfVxw0rtfB-XNEbWCAZEqY5njoIm8PDpvjpNCRrI/edit?pli=1#gid=2102309284
+in order to calculate Cash Flow and Cash-on-Cash Return for investment properties.
+This spreadsheet was derived from the PDF available at:
+https://www.biggerpockets.com/renewsblog/easily-analyzing-rental-properties-four-square-method/
 
 ## Instructions
 
@@ -17,6 +21,5 @@ pip install oauth2client
 
 To run:
 ```
-python main.py -id "[guid/id from URL of MLS listings from broker/agent]" [-l "mls_list.txt"]
+python main.py [-id "{guid/id from URL of MLS listings from broker/agent}"] [-f "{temporary_folder_for_listings}"]
 ```
-where mls_list.txt is a file containing MLS numbers separated by commas

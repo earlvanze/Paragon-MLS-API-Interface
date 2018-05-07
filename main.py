@@ -14,13 +14,12 @@ from oauth2client import file, client, tools
 
 
 PROPERTIES_FOLDER = "listings_temp"
-MLS_LIST_PATH = "mls_list.txt"
 
 SPREADSHEET_ID = '1QkDOfVxw0rtfB-XNEbWCAZEqY5njoIm8PDpvjpNCRrI'
 RANGE_NAME = 'Four-Square Analysis!A:AW'
 
 MLS_ID = "ab87fcd7-935f-4767-a078-debdf1869dea"
-#MLS_ID = "6d70b762-36a4-4ac0-bedd-d0dae2920867"
+MLS_ID = "6d70b762-36a4-4ac0-bedd-d0dae2920867"
 
 # {0} is the MLS number for a property and {1} is a guid generated from http://crmls.paragonrels.com/CollabLink/public/CreateGuid
 PARAGON_API_URL = "http://crmls.paragonrels.com/CollabLink/public/BlazeGetRequest?ApiAction=listing%2FGetListingDetails%2F" \
@@ -63,13 +62,6 @@ def user_args():
         help="ID of Paragonrels listings from URL"
     )
     args.add_argument(
-        '-l',
-        '--list',
-        dest='mls_list_path',
-        default=MLS_LIST_PATH,
-        help='File name or path of comma-separated MLS numbers to search for'
-    )
-    args.add_argument(
         '-f',
         '--folder',
         dest='properties_folder',
@@ -103,12 +95,8 @@ def get_mls_numbers(mls_id = MLS_ID):
     return (mls_numbers)
 
 
-def get_properties(mls_numbers = [], properties_folder = PROPERTIES_FOLDER):
-    # Takes in array of MLS numbers or if none passed in, reads MLS_LIST_PATH file
-    # Then gets json for each property from Paragon API and saves each json to *ADDRESS*.json
-    if not (mls_numbers):
-        with open(MLS_LIST_PATH, 'r') as mls_list:
-            mls_numbers = [x.strip() for x in mls_list.read().split(',')]
+def get_properties(properties_folder, mls_numbers = []):
+    # Takes in array of MLS numbers, gets json for each property from Paragon API, and saves each json to *ADDRESS*.json
     print (mls_numbers)
     guid = requests.get("http://crmls.paragonrels.com/CollabLink/public/CreateGuid").text
     for mls_number in mls_numbers:
@@ -331,10 +319,10 @@ def empty_folder(properties_folder = PROPERTIES_FOLDER):
 def main():
     pathlib.Path(args.properties_folder).mkdir(exist_ok=True)       # create temporary listings folder if nonexistent
     mls_numbers = get_mls_numbers(args.mls_id)
-    get_properties(mls_numbers, args.properties_folder)
+    get_properties(args.properties_folder, mls_numbers)
     output_data = parse_json(args, args.properties_folder)
     append_to_gsheets(SPREADSHEET_ID, RANGE_NAME, output_data)
-#    save_csv(output_data)
+    save_csv(output_data)
     empty_folder(args.properties_folder)
 
 
