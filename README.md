@@ -59,7 +59,8 @@ with your own spreadsheet's ID (derived from the URL https://docs.google.com/spr
 ## Step 4: Run the program
 Run the sample using the following command:
 ```
-python main.py [-id "{guid/id from URL of MLS listings from broker/agent}"] [-l "{filename for newline-separated list of MLS #s}"] [-f "{temporary_folder_for_listings}"]
+python main.py [-id "{guid/id from URL of MLS listings from broker/agent}"] \
+[-l "{filename for newline-separated list of MLS #s}"] [-f "{temporary_folder_for_listings}"]
 ```
 The sample will attempt to open a new window or tab in your default browser. If this fails, copy the URL from the console and manually open it in your browser.
 
