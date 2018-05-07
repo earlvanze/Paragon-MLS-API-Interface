@@ -4,7 +4,7 @@
 This program takes in an ID from a Paragonrels.com URL and automatically populates the following
 <a href="https://docs.google.com/spreadsheets/d/1QkDOfVxw0rtfB-XNEbWCAZEqY5njoIm8PDpvjpNCRrI">Google Spreadsheet</a>
 in order to calculate Cash Flow and Cash-on-Cash Return for investment properties.
-Row 3 of the spreadsheet has formulas that automatically populate with calculations for each new row.
+Row 2 of the spreadsheet has formulas that automatically populate with calculations for each new row.
 I recommend leaving these formulas in place.
 
 
