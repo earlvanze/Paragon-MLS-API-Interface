@@ -68,13 +68,21 @@ def user_args():
         default=PROPERTIES_FOLDER,
         help='Name of folder/path for storing properties files temporarily'
     )
+    args.add_argument(
+        '-l',
+        '--list',
+        dest='mls_list_path',
+        default=None,
+        help='File name or path of newline-separated MLS numbers to search for'
+    )
     return args.parse_args()
 
 args = user_args()
 
 
-def get_mls_numbers(mls_id = MLS_ID):
-    # Takes in an MLS ID of MLS listings and returns array of MLS numbers
+def get_mls_numbers_and_cookies(mls_id = MLS_ID):
+    # Takes in an MLS ID of MLS listings and returns list of MLS numbers
+    # If path to list of MLS #s is given in user arguments, uses that instead
     print("MLS ID: " + mls_id)
     mls_scope = "http://crmls.paragonrels.com/CollabLink/public/BlazePublicGetRequest?ApiAction=GetNotificationAppData%2F&UrlData={0}".format(mls_id)
     r = requests.get(mls_scope)
@@ -89,14 +97,18 @@ def get_mls_numbers(mls_id = MLS_ID):
     data = json.loads(r.text.split('[]')[0])
     listings = data["listings"]
     mls_numbers = []
-    for listing in listings:
-        mls_number = listing.pop('Id')
-        mls_numbers.append(mls_number)
+    if args.mls_list_path:
+        with open(args.mls_list_path, 'r') as mls_list:
+            mls_numbers = [x.strip() for x in mls_list.read().split('\n')]
+    else:
+        for listing in listings:
+            mls_number = listing.pop('Id')
+            mls_numbers.append(mls_number)
     return (mls_numbers)
 
 
 def get_properties(properties_folder, mls_numbers = []):
-    # Takes in array of MLS numbers, gets json for each property from Paragon API, and saves each json to *ADDRESS*.json
+    # Takes in list of MLS numbers, gets json for each property from Paragon API, and saves each json to *ADDRESS*.json
     print (mls_numbers)
     guid = requests.get("http://crmls.paragonrels.com/CollabLink/public/CreateGuid").text
     for mls_number in mls_numbers:
@@ -318,7 +330,7 @@ def empty_folder(properties_folder = PROPERTIES_FOLDER):
 
 def main():
     pathlib.Path(args.properties_folder).mkdir(exist_ok=True)       # create temporary listings folder if nonexistent
-    mls_numbers = get_mls_numbers(args.mls_id)
+    mls_numbers = get_mls_numbers_and_cookies(args.mls_id)
     get_properties(args.properties_folder, mls_numbers)
     output_data = parse_json(args, args.properties_folder)
     append_to_gsheets(SPREADSHEET_ID, RANGE_NAME, output_data)
