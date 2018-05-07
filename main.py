@@ -148,7 +148,7 @@ def parse_json(properties_folder = args.properties_folder):
                 city = DictQuery(data).get("PROP_INFO/CITY")
                 state = DictQuery(data).get("PROP_INFO/STATE")
                 zip = DictQuery(data).get("PROP_INFO/ZIP")
-                full_address = address + ' ' + city + ', ' + state + ' ' + zip
+                full_address = address + '\n' + city + ', ' + state + ' ' + zip
                 address_link = '=HYPERLINK("https://www.google.com/maps/search/?api=1&query={0}","{0}")'.format(full_address)
                 mls_number = data["HISTDATA"][0]["MLS_NUMBER"]
                 price_prev = DictQuery(data).get("PROP_INFO/PRICE_PREV")            # Original price, before price changes
