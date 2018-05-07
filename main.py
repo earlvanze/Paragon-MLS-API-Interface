@@ -53,6 +53,13 @@ class DictQuery(dict):
         return val
 
 
+# Returns empty string if s is None
+def xstr(s):
+    if s is None:
+        return ''
+    return str(s)
+
+
 def user_args():
     args = argparse.ArgumentParser()
     args.add_argument(
@@ -146,6 +153,9 @@ def parse_json(properties_folder = args.properties_folder):
                 mls_number = data["HISTDATA"][0]["MLS_NUMBER"]
                 price_prev = DictQuery(data).get("PROP_INFO/PRICE_PREV")            # Original price, before price changes
                 price_current = DictQuery(data).get("PROP_INFO/PRICE_CURRENT")      # Asking price
+                beds = DictQuery(data).get("PROP_INFO/BDRMS")
+                baths_full = DictQuery(data).get("PROP_INFO/BATHS_FULL")
+                baths_part = DictQuery(data).get("PROP_INFO/BATHS_PART")
                 public_remarks = DictQuery(data).get("PROP_INFO/REMARKS_GENERAL")
                 mls_link = '=HYPERLINK("http://crmls.paragonrels.com/publink/default.aspx?GUID={0}","{1}")'.format(
                     args.mls_id, mls_number)
@@ -167,7 +177,6 @@ def parse_json(properties_folder = args.properties_folder):
     #                    print(label, schools[label])
                     age = DictQuery(property_info).get("Age (NOT year built)")
                     type = DictQuery(property_info).get("Type")
-
                     unit1_rent = DictQuery(property_info).get("Unit #1 Rent")
                     unit2_rent = DictQuery(property_info).get("Unit #2 Rent")
                     unit3_rent = DictQuery(property_info).get("Unit #3 Rent")
@@ -227,7 +236,7 @@ def parse_json(properties_folder = args.properties_folder):
                     output_data[i][2] = price_prev
                     output_data[i][3] = price_current
                     output_data[i][9] = age
-                    output_data[i][10] = type
+                    output_data[i][10] = type + ' ' + beds + 'BD' + '/' + baths_full + '.' + xstr(baths_part) + 'BA'
                     output_data[i][11] = public_remarks
                     output_data[i][12] = unit1_rent
                     output_data[i][13] = unit2_rent
