@@ -80,7 +80,7 @@ def user_args():
 args = user_args()
 
 
-def get_mls_numbers_and_cookies(mls_id = MLS_ID):
+def get_mls_numbers_and_cookies(mls_id = args.mls_id):
     # Takes in an MLS ID of MLS listings and returns list of MLS numbers
     # If path to list of MLS #s is given in user arguments, uses that instead
     print("MLS ID: " + mls_id)
@@ -107,7 +107,7 @@ def get_mls_numbers_and_cookies(mls_id = MLS_ID):
     return (mls_numbers)
 
 
-def get_properties(properties_folder, mls_numbers = []):
+def get_properties(mls_numbers = [], properties_folder = args.properties_folder):
     # Takes in list of MLS numbers, gets json for each property from Paragon API, and saves each json to *ADDRESS*.json
     print (mls_numbers)
     guid = requests.get("http://crmls.paragonrels.com/CollabLink/public/CreateGuid").text
@@ -118,8 +118,8 @@ def get_properties(properties_folder, mls_numbers = []):
             outfile.write(resp.text)
 
 
-def parse_json(args, properties_folder = PROPERTIES_FOLDER):
-    # Parse the json files saved in the PROPERTIES_FOLDER and returns 2D array of properties
+def parse_json(properties_folder = args.properties_folder):
+    # Parse the json files saved in args.properties_folder and returns 2D array of properties
     filenames = []
     for filename in glob.iglob('{}/*.json'.format(properties_folder)):
          filenames.append(filename)
@@ -321,7 +321,7 @@ def append_to_gsheets(spreadsheet_id=SPREADSHEET_ID, range_name=RANGE_NAME, outp
     print('{0} rows updated.'.format(DictQuery(result).get('updates/updatedRows')))
 
 
-def empty_folder(properties_folder = PROPERTIES_FOLDER):
+def empty_folder(properties_folder = args.properties_folder):
     try:
         shutil.rmtree(properties_folder)
     except:
@@ -331,12 +331,12 @@ def empty_folder(properties_folder = PROPERTIES_FOLDER):
 
 def main():
     pathlib.Path(args.properties_folder).mkdir(exist_ok=True)       # create temporary listings folder if nonexistent
-    mls_numbers = get_mls_numbers_and_cookies(args.mls_id)
-    get_properties(args.properties_folder, mls_numbers)
-    output_data = parse_json(args, args.properties_folder)
+    mls_numbers = get_mls_numbers_and_cookies()
+    get_properties(mls_numbers)
+    output_data = parse_json()
     append_to_gsheets(SPREADSHEET_ID, RANGE_NAME, output_data)
     save_csv(output_data)
-    empty_folder(args.properties_folder)
+    empty_folder()
 
 
 if __name__ == '__main__':
