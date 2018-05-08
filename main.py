@@ -184,7 +184,7 @@ def parse_json(properties_folder = args.properties_folder):
                 city = DictQuery(data).get("PROP_INFO/CITY")
                 state = DictQuery(data).get("PROP_INFO/STATE")
                 zip = DictQuery(data).get("PROP_INFO/ZIP")
-                full_address = address + '\n' + city + ', ' + state + ' ' + zip
+                full_address = address + ' \n' + city + ', ' + state + ' ' + zip
                 address_link = '=HYPERLINK("https://www.google.com/maps/search/?api=1&query={0}","{0}")'.format(full_address)
                 mls_number = data["HISTDATA"][0]["MLS_NUMBER"]
                 price_prev = DictQuery(data).get("PROP_INFO/PRICE_PREV")            # Original price, before price changes
@@ -193,8 +193,8 @@ def parse_json(properties_folder = args.properties_folder):
                 baths_full = DictQuery(data).get("PROP_INFO/BATHS_FULL")
                 baths_part = DictQuery(data).get("PROP_INFO/BATHS_PART")
                 public_remarks = DictQuery(data).get("PROP_INFO/REMARKS_GENERAL")
-                mls_link = '=HYPERLINK("http://{0}.paragonrels.com/publink/default.aspx?GUID={1}","{2}")'.format(
-                    args.system_id, args.mls_id, mls_number)
+                mls_link = '=HYPERLINK("http://{0}.paragonrels.com/publink/Report.aspx?GUID={1}&ListingID={2}:0&layout_id=3","{2}")'\
+                    .format(args.system_id, args.mls_id, mls_number)
                 # Two possible formats for MLS sheet encountered so far:
                 # 1st format, more common: [[Property Information], [Schools], [Features], [Miscellaneous]]
                 try:
@@ -381,10 +381,10 @@ def empty_folder(properties_folder = args.properties_folder):
 def main():
     pathlib.Path(args.properties_folder).mkdir(exist_ok=True)       # create temporary listings folder if nonexistent
     mls_numbers = get_mls_numbers_and_cookies()
-    get_properties(mls_numbers)
+#    get_properties(mls_numbers)
     output_data = parse_json()
     append_to_gsheet(output_data)
-    save_csv(output_data)
+#    save_csv(output_data)
 #    empty_folder()
 
 
