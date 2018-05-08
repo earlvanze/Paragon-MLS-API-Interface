@@ -2,3 +2,4 @@
 *.csv
 /listings
 /venv
+mls_list.txt
