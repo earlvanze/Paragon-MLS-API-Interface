@@ -127,4 +127,4 @@ By understanding the public CollabLink API with little to no public documentatio
 But that's beyond the scope of this git repo.
 
 
-## Enjoy!
+Enjoy!
