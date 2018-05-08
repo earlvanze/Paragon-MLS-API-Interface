@@ -108,8 +108,13 @@ python main.py --help
 
 ## How did I figure all this out?
 
-This is the  "normal" desktop/legacy version of the Paragon MLS, usually provided by your real estate broker/agent.
+This is the "normal" desktop/legacy version of the Paragon MLS, usually provided by your real estate broker/agent.
 http://{system_id}.paragonrels.com/publink/default.aspx?GUID={mls_id}
+
+
+I was originally going to use the legacy version's request URL:
+http://crmls.paragonrels.com/publink/Report.aspx?&GUID={mls_id}&ListingID={mls_number}:0&layout_id=3
+and scrape the output HTML, but why do scraping when a perfectly good public API is available?
 
 
 In the upper left corner, there is a button to "Switch to Mobile View", a nicer, cleaner, mobile-friendly, responsive UI that leads to:
@@ -118,8 +123,8 @@ http://{system_id}.paragonrels.com/CollabLink/#/?id={mls_id}
 
 By using Chrome's <i>Inspect Element</i> > <i>Network</i> feature, I found out about the API
 and proceeded to spend an entire weekend to essentially reverse-engineer how it works.
-By understanding the undocumented API, theoretically, I could create my own Zillow or StreetEasy.
+By understanding the public CollabLink API with little to no public documentation, I could theoretically create my own Zillow or StreetEasy.
 But that's beyond the scope of this git repo.
 
 
-Enjoy!
+## Enjoy!
