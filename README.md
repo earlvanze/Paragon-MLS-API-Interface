@@ -57,10 +57,10 @@ Make your own copy of the Google spreadsheet linked above and replace the SPREAD
 with your own spreadsheet's ID (derived from the URL https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID})
 
 ## Step 4: Run the program
-Run the sample using the following command:
+Run the sample using the following command [optional flags]
 ```
-python main.py [-id "{guid/id from URL of MLS listings from broker/agent}"] \
-[-l "{filename for newline-separated list of MLS #s}"] [-f "{temporary_folder_for_listings}"]
+python main.py [-id {guid/id from URL of MLS listings from broker/agent}] \
+[-l {filename for newline-separated list of MLS #s}] [-f {temporary_folder_for_listings}] [-s MLS System ID/subdomain]
 ```
 The sample will attempt to open a new window or tab in your default browser. If this fails, copy the URL from the console and manually open it in your browser.
 

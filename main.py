@@ -18,16 +18,18 @@ RANGE_NAME = 'Four-Square Analysis!A:AW'
 
 # MLS_ID gets passed in by user but default is here if none passed in
 MLS_ID = "6d70b762-36a4-4ac0-bedd-d0dae2920867"
+SYSTEM_ID = "CRMLS"
 
 # You generally don't need to change these
 PROPERTIES_FOLDER = "listings"
-# {0} is the MLS number for a property and {1} is a guid generated from http://crmls.paragonrels.com/CollabLink/public/CreateGuid
-PARAGON_API_URL = "http://crmls.paragonrels.com/CollabLink/public/BlazeGetRequest?ApiAction=listing%2FGetListingDetails%2F" \
-                  "&UrlData={0}%2F0%2F2%2Ffalse%2F{1}"
+# {0} is the SYSTEM_ID, {1} is the MLS number for a property,
+# and {2} is a guid generated from http://{args.system_id}.paragonrels.com/CollabLink/public/CreateGuid
+PARAGON_API_URL = "http://{0}.paragonrels.com/CollabLink/public/BlazeGetRequest?ApiAction=listing%2FGetListingDetails%2F" \
+                  "&UrlData={1}%2F0%2F2%2Ffalse%2F{2}"
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) '
                          'AppleWebKit/537.36 (KHTML, like Gecko) '
                          'Chrome/39.0.2171.95 Safari/537.36',
-           'Cookie': 'psystemid={0};pagentid={1};pofficeid={2};'        # this gets updated in in get_mls_numbers
+           'Cookie': 'psystemid={0};pagentid={1};pofficeid={2};'        # this gets updated in get_mls_numbers
 }
 
 
@@ -82,45 +84,64 @@ def user_args():
         default=None,
         help='File name or path of newline-separated MLS numbers to search for'
     )
+    args.add_argument(
+        '-s',
+        '--system',
+        dest='system_id',
+        default=SYSTEM_ID,
+        help='Paragon MLS System ID (usually the subdomain of the link). Required if not passing in MLS listings ID or using default SYSTEM_ID)'
+    )
     return args.parse_args()
 
 args = user_args()
 
 
-def get_mls_numbers_and_cookies(mls_id = args.mls_id):
+def get_mls_numbers_and_cookies(mls_id = args.mls_id, system_id = args.system_id):
     # Takes in an MLS ID of MLS listings and returns list of MLS numbers
     # If path to list of MLS #s is given in user arguments, uses that instead
-    print("MLS ID: " + mls_id)
-    mls_scope = "http://crmls.paragonrels.com/CollabLink/public/BlazePublicGetRequest?ApiAction=GetNotificationAppData%2F&UrlData={0}".format(mls_id)
-    r = requests.get(mls_scope)
-    r_json = json.loads(r.text)
-
-    # Need to get cookie data from MLS response to retrieve property information later
-    system_id = DictQuery(r_json).get("Agent/SystemId")
-    agent_id = DictQuery(r_json).get("Agent/AgentId")
-    office_id = DictQuery(r_json).get("Agent/OfficeId")
-    headers['Cookie'] = 'psystemid={0};pagentid={1};pofficeid={2};'.format(system_id, agent_id, office_id)
-
-    data = json.loads(r.text.split('[]')[0])
-    listings = data["listings"]
     mls_numbers = []
+    listings = []
+    agent_id = 1
+    office_id = 1
+    print("MLS ID: " + mls_id)
+    if mls_id != MLS_ID:
+        mls_scope = "http://{0}.paragonrels.com/CollabLink/public/BlazePublicGetRequest?ApiAction=GetNotificationAppData%2F&UrlData={1}".format(system_id, mls_id)
+        r = requests.get(mls_scope)
+        r_json = json.loads(r.text)
+    #    print (r.text)
+        # Need to get cookie data from MLS response to retrieve property information later
+        system_id = DictQuery(r_json).get("Agent/SystemId")
+        agent_id = DictQuery(r_json).get("Agent/AgentId")
+        office_id = DictQuery(r_json).get("Agent/OfficeId")
+
+        data = json.loads(r.text.split('[]')[0])
+        listings = data["listings"]
+        print ("Listings found from MLS ID: " + str(listings))
+
     if args.mls_list_path:
         with open(args.mls_list_path, 'r') as mls_list:
             mls_numbers = [x.strip() for x in mls_list.read().split('\n')]
     else:
-        for listing in listings:
-            mls_number = listing.pop('Id')
-            mls_numbers.append(mls_number)
+        if listings:
+            for listing in listings:
+                mls_number = listing.pop('Id')
+                mls_numbers.append(mls_number)
+        else:
+            print ("No listings found")
+
+    headers['Cookie'] = 'psystemid={0};pagentid={1};pofficeid={2};'.format(system_id.upper(), agent_id, office_id)
+    print ("Cookies: " + headers['Cookie'])
     return (mls_numbers)
 
 
-def get_properties(mls_numbers = [], properties_folder = args.properties_folder):
+def get_properties(mls_numbers = [], properties_folder = args.properties_folder, system_id = args.system_id):
     # Takes in list of MLS numbers, gets json for each property from Paragon API, and saves each json to *ADDRESS*.json
     print (mls_numbers)
-    guid = requests.get("http://crmls.paragonrels.com/CollabLink/public/CreateGuid").text
+    guid = requests.get("http://{0}.paragonrels.com/CollabLink/public/CreateGuid".format(system_id)).text
+#    print ("GUID: " + guid)
     for mls_number in mls_numbers:
-        resp = requests.get(PARAGON_API_URL.format(mls_number,guid), headers = headers)
-        out_json = "%s.json" % (DictQuery(resp.json()).get("PROP_INFO/ADDRESS"))
+        resp = requests.get(PARAGON_API_URL.format(system_id, mls_number, guid), headers = headers)
+        out_json = "%s.json" % (xstr(DictQuery(resp.json()).get("PROP_INFO/ADDRESS")))
         with open("{0}/{1}".format(properties_folder,out_json), 'w') as outfile:
             outfile.write(resp.text)
 
@@ -142,7 +163,7 @@ def parse_json(properties_folder = args.properties_folder):
             schools = {}
             features = {}
             misc = {}
-
+            status = ''
             try:
                 address = DictQuery(data).get("PROP_INFO/ADDRESS")
                 city = DictQuery(data).get("PROP_INFO/CITY")
@@ -157,8 +178,8 @@ def parse_json(properties_folder = args.properties_folder):
                 baths_full = DictQuery(data).get("PROP_INFO/BATHS_FULL")
                 baths_part = DictQuery(data).get("PROP_INFO/BATHS_PART")
                 public_remarks = DictQuery(data).get("PROP_INFO/REMARKS_GENERAL")
-                mls_link = '=HYPERLINK("http://crmls.paragonrels.com/publink/default.aspx?GUID={0}","{1}")'.format(
-                    args.mls_id, mls_number)
+                mls_link = '=HYPERLINK("http://{0}.paragonrels.com/publink/default.aspx?GUID={1}","{2}")'.format(
+                    args.system_id, args.mls_id, mls_number)
                 # Two possible formats for MLS sheet encountered so far:
                 # 1st format, more common: [[Property Information], [Schools], [Features], [Miscellaneous]]
                 try:
@@ -183,7 +204,7 @@ def parse_json(properties_folder = args.properties_folder):
                     unit4_rent = DictQuery(property_info).get("Unit #4 Rent")
                     total_taxes = int(DictQuery(property_info).get("Total Taxes").replace(",", "")) // 12
                     school_taxes = 0
-                    if (DictQuery(schools).get("School Taxes")):
+                    if DictQuery(schools).get("School Taxes"):
                         school_taxes = int(DictQuery(schools).get("School Taxes").replace(",", "")) // 12
                     status = DictQuery(property_info).get("Status")
                 except:
@@ -201,24 +222,26 @@ def parse_json(properties_folder = args.properties_folder):
                         for item in schools_list:
                             label = item.pop('Label')
                             schools[label] = item.pop('Value')
-#                            print(label, schools[label])
+                        #                            print(label, schools[label])
                         for item in features_list:
                             label = item.pop('Label')
                             features[label] = item.pop('Value')
-#                            print(label, features[label])
+                        #                            print(label, features[label])
                         for item in misc_list:
                             label = item.pop('Label')
                             misc[label] = item.pop('Value')
-#                            print(label, misc[label])
+                        #                            print(label, misc[label])
                         age = DictQuery(misc).get("Age (NOT year built)")
                         type = DictQuery(data).get("PROP_INFO/PROP_TYPE_LONG")
                         unit1_rent = DictQuery(misc).get("Unit 1 Monthly Rent")
                         unit2_rent = DictQuery(misc).get("Unit 2 Monthly Rent")
                         unit3_rent = DictQuery(misc).get("Unit 3 Monthly Rent")
                         unit4_rent = DictQuery(misc).get("Unit 4 Monthly Rent")
-                        total_taxes = int(DictQuery(misc).get("Total Taxes").replace(",", "")) // 12
+                        total_taxes = 0
+                        if DictQuery(misc).get("Total Taxes"):
+                            total_taxes = int(DictQuery(misc).get("Total Taxes").replace(",", "")) // 12
                         school_taxes = 0
-                        if (DictQuery(schools).get("School Taxes")):
+                        if DictQuery(schools).get("School Taxes"):
                             school_taxes = int(DictQuery(schools).get("School Taxes").replace(",", "")) // 12
                         status = DictQuery(data).get("PROP_INFO/STATUS_LONG")
                     except:
@@ -230,7 +253,7 @@ def parse_json(properties_folder = args.properties_folder):
                 continue
             finally:
                 # Fill in list only if property is an active listing
-                if (status == 'Active'):
+                if (status == 'Active' or 'Under Contract'):
                     output_data[i][0] = address_link
                     output_data[i][1] = mls_link
                     output_data[i][2] = price_prev
@@ -244,6 +267,8 @@ def parse_json(properties_folder = args.properties_folder):
                     output_data[i][15] = unit4_rent
                     output_data[i][23] = total_taxes - school_taxes
                     output_data[i][24] = school_taxes
+                else:
+                    print ("{0} ({1}) status is {2}".format(address, mls_number, status))
     output_data = [x for x in output_data if x[0] != None]    # delete empty rows (inactive listings) from output_data
     print (output_data)
     return (output_data)
@@ -345,7 +370,7 @@ def main():
     output_data = parse_json()
     append_to_gsheets(SPREADSHEET_ID, RANGE_NAME, output_data)
     save_csv(output_data)
-    empty_folder()
+#    empty_folder()
 
 
 if __name__ == '__main__':
