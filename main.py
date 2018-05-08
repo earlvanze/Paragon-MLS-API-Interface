@@ -12,9 +12,9 @@ from apiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
 
-# You should change these to match your spreadsheet.
-SPREADSHEET_ID = '1QkDOfVxw0rtfB-XNEbWCAZEqY5njoIm8PDpvjpNCRrI'
-RANGE_NAME = 'Four-Square Analysis!A:AW'
+# You should change these to match your own spreadsheet
+GSHEET_ID = '1QkDOfVxw0rtfB-XNEbWCAZEqY5njoIm8PDpvjpNCRrI'
+RANGE_NAME = 'Four-Square Analysis!A:AX'
 
 # MLS_ID gets passed in by user but default is here if none passed in
 MLS_ID = "6d70b762-36a4-4ac0-bedd-d0dae2920867"
@@ -26,6 +26,7 @@ PROPERTIES_FOLDER = "listings"
 # and {2} is a guid generated from http://{args.system_id}.paragonrels.com/CollabLink/public/CreateGuid
 PARAGON_API_URL = "http://{0}.paragonrels.com/CollabLink/public/BlazeGetRequest?ApiAction=listing%2FGetListingDetails%2F" \
                   "&UrlData={1}%2F0%2F2%2Ffalse%2F{2}"
+
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) '
                          'AppleWebKit/537.36 (KHTML, like Gecko) '
                          'Chrome/39.0.2171.95 Safari/537.36',
@@ -65,7 +66,8 @@ def xstr(s):
 def user_args():
     args = argparse.ArgumentParser()
     args.add_argument(
-        "-id",
+        "-i",
+        "--id",
         dest="mls_id",
         default=MLS_ID,
         help="ID of Paragonrels listings from URL"
@@ -89,7 +91,14 @@ def user_args():
         '--system',
         dest='system_id',
         default=SYSTEM_ID,
-        help='Paragon MLS System ID (usually the subdomain of the link). Required if not passing in MLS listings ID or using default SYSTEM_ID)'
+        help='ID of Google Sheet'
+    )
+    args.add_argument(
+        '-g',
+        '--gsheet_id',
+        dest='gsheet_id',
+        default=GSHEET_ID,
+        help='Google Sheets ID derived from the URL https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID})'
     )
     return args.parse_args()
 
@@ -104,19 +113,20 @@ def get_mls_numbers_and_cookies(mls_id = args.mls_id, system_id = args.system_id
     agent_id = 1
     office_id = 1
     print("MLS ID: " + mls_id)
+    mls_scope = "http://{0}.paragonrels.com/CollabLink/public/BlazePublicGetRequest?ApiAction=GetNotificationAppData%2F&UrlData={1}".format(system_id, mls_id)
+    r = requests.get(mls_scope)
+    r_json = json.loads(r.text)
+#    print (r.text)
+
+    # Need to get cookie data from MLS response to retrieve property information later
+    # If an MLS ID is passed in (not default MLS_ID), update the cookies accordingly for good measure
     if mls_id != MLS_ID:
-        mls_scope = "http://{0}.paragonrels.com/CollabLink/public/BlazePublicGetRequest?ApiAction=GetNotificationAppData%2F&UrlData={1}".format(system_id, mls_id)
-        r = requests.get(mls_scope)
-        r_json = json.loads(r.text)
-    #    print (r.text)
-        # Need to get cookie data from MLS response to retrieve property information later
-        system_id = DictQuery(r_json).get("Agent/SystemId")
         agent_id = DictQuery(r_json).get("Agent/AgentId")
         office_id = DictQuery(r_json).get("Agent/OfficeId")
 
-        data = json.loads(r.text.split('[]')[0])
-        listings = data["listings"]
-        print ("Listings found from MLS ID: " + str(listings))
+    data = json.loads(r.text.split('[]')[0])
+    listings = data["listings"]
+    print ("Listings found from MLS ID: " + str(listings))
 
     if args.mls_list_path:
         with open(args.mls_list_path, 'r') as mls_list:
@@ -127,23 +137,28 @@ def get_mls_numbers_and_cookies(mls_id = args.mls_id, system_id = args.system_id
                 mls_number = listing.pop('Id')
                 mls_numbers.append(mls_number)
         else:
-            print ("No listings found")
+            print ("No listings found in " + mls_id)
 
     headers['Cookie'] = 'psystemid={0};pagentid={1};pofficeid={2};'.format(system_id.upper(), agent_id, office_id)
-    print ("Cookies: " + headers['Cookie'])
+#    print ("Cookies: " + headers['Cookie'])
     return (mls_numbers)
 
 
 def get_properties(mls_numbers = [], properties_folder = args.properties_folder, system_id = args.system_id):
-    # Takes in list of MLS numbers, gets json for each property from Paragon API, and saves each json to *ADDRESS*.json
+    # Takes in list of MLS numbers, gets json for each property from Paragon API, and saves each json to {ADDRESS}.json
     print (mls_numbers)
     guid = requests.get("http://{0}.paragonrels.com/CollabLink/public/CreateGuid".format(system_id)).text
 #    print ("GUID: " + guid)
     for mls_number in mls_numbers:
-        resp = requests.get(PARAGON_API_URL.format(system_id, mls_number, guid), headers = headers)
-        out_json = "%s.json" % (xstr(DictQuery(resp.json()).get("PROP_INFO/ADDRESS")))
-        with open("{0}/{1}".format(properties_folder,out_json), 'w') as outfile:
-            outfile.write(resp.text)
+        try:
+            resp = requests.get(PARAGON_API_URL.format(system_id, mls_number, guid), headers = headers)
+            out_json = "%s.json" % (xstr(DictQuery(resp.json()).get("PROP_INFO/ADDRESS")))
+            with open("{0}/{1}".format(properties_folder,out_json), 'w') as outfile:
+                outfile.write(resp.text)
+        except:
+            print(mls_number)
+            traceback.print_exc()
+            continue
 
 
 def parse_json(properties_folder = args.properties_folder):
@@ -253,7 +268,7 @@ def parse_json(properties_folder = args.properties_folder):
                 continue
             finally:
                 # Fill in list only if property is an active listing
-                if (status == 'Active' or 'Under Contract'):
+                if (status == 'Active'):
                     output_data[i][0] = address_link
                     output_data[i][1] = mls_link
                     output_data[i][2] = price_prev
@@ -270,7 +285,7 @@ def parse_json(properties_folder = args.properties_folder):
                 else:
                     print ("{0} ({1}) status is {2}".format(address, mls_number, status))
     output_data = [x for x in output_data if x[0] != None]    # delete empty rows (inactive listings) from output_data
-    print (output_data)
+#    print (output_data)
     return (output_data)
 
 
@@ -335,7 +350,7 @@ def save_csv(output_data = [[None] * 50]):
     )
 
 
-def append_to_gsheets(spreadsheet_id=SPREADSHEET_ID, range_name=RANGE_NAME, output_data=[]):
+def append_to_gsheet(output_data=[], gsheet_id = args.gsheet_id, range_name = RANGE_NAME):
     # Setup the Sheets API
     SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
     store = file.Storage('credentials.json')
@@ -350,7 +365,7 @@ def append_to_gsheets(spreadsheet_id=SPREADSHEET_ID, range_name=RANGE_NAME, outp
         'values': output_data
     }
     result = service.spreadsheets().values().append(
-        spreadsheetId=spreadsheet_id, range=range_name,
+        spreadsheetId=gsheet_id, range=range_name,
         valueInputOption='USER_ENTERED', body=body).execute()
     print('{0} rows updated.'.format(DictQuery(result).get('updates/updatedRows')))
 
@@ -368,7 +383,7 @@ def main():
     mls_numbers = get_mls_numbers_and_cookies()
     get_properties(mls_numbers)
     output_data = parse_json()
-    append_to_gsheets(SPREADSHEET_ID, RANGE_NAME, output_data)
+    append_to_gsheet(output_data)
     save_csv(output_data)
 #    empty_folder()
 

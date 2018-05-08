@@ -1,8 +1,8 @@
 # Paragon Real Estate Multiple Listing Service API Interface
 ### For Automated Four-Square Analysis of Rental Properties
 
-This program takes in an ID from a Paragonrels.com URL and automatically populates the following
-<a href="https://docs.google.com/spreadsheets/d/1S-Vqsw_JyrCo6_zziWM_llZNl8AU92MeLZx9Xp5lMyw/edit?usp=divesdk"> Google Spreadsheet</a>
+This program takes in an ID from a Paragonrels.com URL and automatically populates your own copy of this
+<a href="https://docs.google.com/spreadsheets/d/1S-Vqsw_JyrCo6_zziWM_llZNl8AU92MeLZx9Xp5lMyw">Google Spreadsheet</a>
 in order to calculate Cash Flow and Cash-on-Cash Return for investment properties.
 Row 2 of the spreadsheet has formulas that automatically populate with calculations for each new row.
 I recommend leaving these formulas in place.
@@ -10,6 +10,22 @@ I recommend leaving these formulas in place.
 
 This spreadsheet was derived from the PDF available at
 <a href="https://www.biggerpockets.com/renewsblog/easily-analyzing-rental-properties-four-square-method/">BiggerPockets.com</a>
+
+
+You should have an agent send you a listing from your region's MLS in order to get the GUID from the URL,
+which is used to pull the listings in that ID.
+
+Alternatively, if you know your local MLS System ID, you can pass that in along with a text file
+containing a list of MLS numbers you're interested in analyzing.
+Given only the System ID and the MLS number, the Paragon API can return the listing's information.
+
+However, each MLS system is slightly different in the formatting of their listings
+(and sometimes, listings within the same MLS system are different from each other)
+and thus, the json result from the get_properties() function is formatted differently and parses slightly differently.
+ If you encounter errors in parsing the json (but the json files are properly created in the "listings" folder,
+  you may need to adjust the parse_json() code inside the nested try-except blocks to fit your listings'
+  general format so it can be parsed properly.
+
 
 ## Prerequisites
 From https://developers.google.com/sheets/api/quickstart/python
@@ -53,19 +69,37 @@ pip install --upgrade pandas httplib2 google-api-python-client oauth2client
 See the library's <a href="https://developers.google.com/api-client-library/python/start/installation">installation page</a> for the alternative installation options.
 
 ## Step 3: Make a copy of spreadsheet and update main.py
-Make your own copy of the Google spreadsheet linked above and replace the SPREADSHEET_ID (line 18 of main.py)
-with your own spreadsheet's ID (derived from the URL https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID})
+Make your own copy of the Google spreadsheet linked above and replace GSHEET_ID
+with your own Google Sheet's ID (derived from the URL https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID})
+
+You can also pass this in as a command-line argument to override the default global variable one time
+
+If you renamed the specific sheet 'Four-Square Analysis!A:AX' inside the Google Sheets file or modified the number of columns,
+replace RANGE_NAME with the new name along with the new range of columns.
+
+Note that if you modify the number of columns, you may also want to modify the columns list in save_csv() to match.
+Or not, since the save_csv() function does not affect the append_to_gsheet() function.
+
+What is important is that if you want to save a csv of the listings, the number of columns in the output_data list
+returned by get_properties() and passed in to save_csv() MUST match the number of items in columns[], or Python will throw an exception.
+
+Example: 'Four-Square Analysis!A:AX'
 
 ## Step 4: Run the program
 Run the sample using the following command [optional flags]
 ```
-python main.py [-id {guid/id from URL of MLS listings from broker/agent}] \
-[-l {filename for newline-separated list of MLS #s}] [-f {temporary_folder_for_listings}] [-s MLS System ID/subdomain]
+python main.py [-i {guid/id from URL of MLS listings from broker/agent}] \
+[-l {filename for newline-separated list of MLS #s}] [-f {temporary_folder_for_listings}] [-s {MLS System ID/subdomain}] [-g {Google Sheets ID}]
 ```
-The sample will attempt to open a new window or tab in your default browser. If this fails, copy the URL from the console and manually open it in your browser.
+The append_to_gsheet() code will attempt to open a new window or tab in your default browser. If this fails, copy the URL from the console and manually open it in your browser.
 
 If you are not already logged into your Google account, you will be prompted to log in.
 If you are logged into multiple Google accounts, you will be asked to select one account to use for the authorization.
 
 Click the Accept button.
 The sample will proceed automatically, and you may close the window/tab.
+
+If you need help, type:
+```
+python main.py --help
+```
