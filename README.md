@@ -3,7 +3,8 @@
 
 This program takes in an ID from a Paragonrels.com URL and automatically populates your own copy of this
 <a href="https://docs.google.com/spreadsheets/d/1S-Vqsw_JyrCo6_zziWM_llZNl8AU92MeLZx9Xp5lMyw">Google Spreadsheet</a>
-in order to calculate Cash Flow and Cash-on-Cash Return for investment properties.
+in order to calculate Cash Flow and Cash-on-Cash Return for investment properties. No coding experience necessary.
+
 Row 2 of the spreadsheet has formulas that automatically populate with calculations for each new row.
 I recommend leaving these formulas in place.
 
@@ -45,7 +46,14 @@ I did not test this in a fresh Python environment or virtualenv isolated from an
 
 The <a href="https://pypi.python.org/pypi/pip">pip</a> package management tool.
 
+
 A Google account.
+
+Clone this repository using git in Terminal (Mac or Linux) by typing:
+```
+git clone https://github.com/earlvanze/Paragon-MLS-API-Interface paragon && cd paragon
+```
+Windows users need to install git or GitHub Desktop or simply download the repository as a zip and unzip the package.
 
 ## Step 1: Turn on the Google Sheets API
 Use <a href="https://console.developers.google.com/start/api?id=sheets.googleapis.com">this wizard</a> to create or
