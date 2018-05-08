@@ -12,17 +12,18 @@ This spreadsheet was derived from the PDF available at
 <a href="https://www.biggerpockets.com/renewsblog/easily-analyzing-rental-properties-four-square-method/">BiggerPockets.com</a>
 
 
-You should have an agent send you a listing from your region's MLS in order to get the GUID from the URL,
+You should have an agent send you a listing from your region's MLS in order to get the GUID ("MLS ID") from the URL,
 which is used to pull the listings in that ID.
 
 Alternatively, if you know your local MLS System ID, you can pass that in along with a text file
 containing a list of MLS numbers you're interested in analyzing.
+The System ID is usually the subdomain of *.paragonrels.com or *.fnimls.com but this may be different for your region.
 Given only the System ID and the MLS number, the Paragon API can return the listing's information.
 
 However, each MLS system is slightly different in the formatting of their listings
 (and sometimes, listings within the same MLS system are different from each other)
 and thus, the json result from the get_properties() function is formatted differently and parses slightly differently.
- If you encounter errors in parsing the json (but the json files are properly created in the "listings" folder,
+ If you encounter errors in parsing the json even though the json files are properly created in the "listings" folder,
   you may need to adjust the parse_json() code inside the nested try-except blocks to fit your listings'
   general format so it can be parsed properly.
 
@@ -103,3 +104,22 @@ If you need help, type:
 ```
 python main.py --help
 ```
+
+
+## How did I figure all this out?
+
+This is the  "normal" desktop/legacy version of the Paragon MLS, usually provided by your real estate broker/agent.
+http://{system_id}.paragonrels.com/publink/default.aspx?GUID={mls_id}
+
+
+In the upper left corner, there is a button to "Switch to Mobile View", a nicer, cleaner, mobile-friendly, responsive UI that leads to:
+http://{system_id}.paragonrels.com/CollabLink/#/?id={mls_id}
+
+
+By using Chrome's <i>Inspect Element</i> > <i>Network</i> feature, I found out about the API
+and proceeded to spend an entire weekend to essentially reverse-engineer how it works.
+By understanding the undocumented API, theoretically, I could create my own Zillow or StreetEasy.
+But that's beyond the scope of this git repo.
+
+
+Enjoy!
