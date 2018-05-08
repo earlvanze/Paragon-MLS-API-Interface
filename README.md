@@ -35,6 +35,14 @@ To run this program, you'll need:
 
 Python 2.6 or greater.
 
+This was developed and tested using Python 3.6.4 on macOS High Sierra
+but it should work in any other Python environment as long as the necessary Python modules are installed.
+If Python complains that one of the modules is missing, just install that module and let me know that this
+documentation is missing a package.
+
+I did not test this in a fresh Python environment or virtualenv isolated from any existing modules.
+
+
 The <a href="https://pypi.python.org/pypi/pip">pip</a> package management tool.
 
 A Google account.
