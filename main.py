@@ -8,6 +8,7 @@ import os, shutil
 import pathlib
 import argparse
 import traceback
+import datetime
 from apiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
@@ -127,7 +128,7 @@ def get_mls_numbers_and_cookies(mls_id = args.mls_id, system_id = args.system_id
     data = json.loads(r.text.split('[]')[0])
     listings = data["listings"]
     print ("Listings found from MLS ID: " + str(listings))
-
+    print (args.mls_list_path)
     if args.mls_list_path:
         with open(args.mls_list_path, 'r') as mls_list:
             mls_numbers = [x.strip() for x in mls_list.read().split('\n')]
@@ -147,8 +148,8 @@ def get_mls_numbers_and_cookies(mls_id = args.mls_id, system_id = args.system_id
 def get_properties(mls_numbers = [], properties_folder = args.properties_folder, system_id = args.system_id):
     # Takes in list of MLS numbers, gets json for each property from Paragon API, and saves each json to {ADDRESS}.json
     print (mls_numbers)
-    guid = requests.get("http://{0}.paragonrels.com/CollabLink/public/CreateGuid".format(system_id)).text
-#    print ("GUID: " + guid)
+    guid = requests.get("http://{0}.paragonrels.com/CollabLink/public/CreateGuid".format(system_id), headers = headers).text
+#    print ("GUID: " + GUID)
     for mls_number in mls_numbers:
         try:
             resp = requests.get(PARAGON_API_URL.format(system_id, mls_number, guid), headers = headers)
@@ -195,6 +196,10 @@ def parse_json(properties_folder = args.properties_folder):
                 public_remarks = DictQuery(data).get("PROP_INFO/REMARKS_GENERAL")
                 mls_link = '=HYPERLINK("http://{0}.paragonrels.com/publink/Report.aspx?GUID={1}&ListingID={2}:0&layout_id=3","{2}")'\
                     .format(args.system_id, args.mls_id, mls_number)
+                # If an MLS ID is NOT passed in (default MLS_ID used), mls_link should be zillow address search
+                if args.mls_id == MLS_ID:
+                    mls_link = '=HYPERLINK("https://www.zillow.com/homes/{0}_rb/","{1}")' \
+                        .format(full_address, mls_number)
                 # Two possible formats for MLS sheet encountered so far:
                 # 1st format, more common: [[Property Information], [Schools], [Features], [Miscellaneous]]
                 try:
@@ -267,15 +272,16 @@ def parse_json(properties_folder = args.properties_folder):
                 traceback.print_exc()
                 continue
             finally:
+                now = datetime.datetime.now()
                 # Fill in list only if property is an active listing
-                if (status == 'Active'):
+                if (status == 'Active' or 'New' or 'Price Change') or ('Pend' in status):
                     output_data[i][0] = address_link
                     output_data[i][1] = mls_link
                     output_data[i][2] = price_prev
                     output_data[i][3] = price_current
                     output_data[i][9] = age
                     output_data[i][10] = type + '\n' + beds + 'BD' + '/' + baths_full + '.' + xstr(baths_part) + 'BA'
-                    output_data[i][11] = public_remarks
+                    output_data[i][11] = public_remarks + "\n{0} as of {1}-{2}-{3}".format(status, str(now.year), str(now.month), str(now.day))
                     output_data[i][12] = unit1_rent
                     output_data[i][13] = unit2_rent
                     output_data[i][14] = unit3_rent
@@ -381,7 +387,7 @@ def empty_folder(properties_folder = args.properties_folder):
 def main():
     pathlib.Path(args.properties_folder).mkdir(exist_ok=True)       # create temporary listings folder if nonexistent
     mls_numbers = get_mls_numbers_and_cookies()
-#    get_properties(mls_numbers)
+    get_properties(mls_numbers)
     output_data = parse_json()
     append_to_gsheet(output_data)
 #    save_csv(output_data)
