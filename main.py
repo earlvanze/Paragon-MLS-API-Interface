@@ -391,7 +391,7 @@ def main():
     output_data = parse_json()
     append_to_gsheet(output_data)
 #    save_csv(output_data)
-#    empty_folder()
+    empty_folder()
 
 
 if __name__ == '__main__':

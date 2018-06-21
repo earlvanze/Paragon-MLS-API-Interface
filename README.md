@@ -1,7 +1,7 @@
 # Paragon Real Estate Multiple Listing Service API Interface
 ### For Automated Four-Square Analysis of Rental Properties
 
-This program takes in an ID from a Paragonrels.com URL and automatically populates your own copy of this
+This program takes in an ID from a Paragonrels.com or fnimls.com URL and automatically populates your own copy of this
 <a href="https://docs.google.com/spreadsheets/d/1S-Vqsw_JyrCo6_zziWM_llZNl8AU92MeLZx9Xp5lMyw">Google Spreadsheet</a>
 in order to calculate Cash Flow and Cash-on-Cash Return for investment properties. No coding experience necessary.
 
@@ -105,8 +105,8 @@ Example: 'Four-Square Analysis!A:AX'
 ## Step 4: Run the program
 Run the sample using the following command [optional flags]
 ```
-python main.py [-i {guid/id from URL of MLS listings from broker/agent}] \
-[-l {filename for newline-separated list of MLS #s}] [-f {temporary_folder_for_listings}] [-s {MLS System ID/subdomain}] [-g {Google Sheets ID}]
+python main.py -i 'guid/id from URL of MLS listings from broker/agent' \
+-l 'filename for newline-separated list of MLS #s' -f 'temporary_folder_for_listings' -s 'MLS System ID/subdomain' -g 'Google Sheets ID'
 ```
 The append_to_gsheet() code will attempt to open a new window or tab in your default browser. If this fails, copy the URL from the console and manually open it in your browser.
 
