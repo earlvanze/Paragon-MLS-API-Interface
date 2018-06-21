@@ -142,5 +142,6 @@ and proceeded to spend an entire weekend to essentially reverse-engineer how it 
 By understanding the public CollabLink API with little to no public documentation, I could theoretically create my own Zillow or StreetEasy.
 But that's beyond the scope of this git repo.
 
+Relevant reading: https://blog.hartleybrody.com/web-scraping/, I found after the fact.
 
 Enjoy!
