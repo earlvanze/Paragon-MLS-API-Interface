@@ -1,29 +1,62 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
     <head>
-        <title>Rental Property Analysis</title>
+        <title>Rental Property Cash Flow Analysis</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script>
+$(document).ready(function() {
+    $('form').submit(function (e) {
+        var url = '/'; // send the form data here.
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $('form').serialize(), // serializes the form's elements.
+            success: function (data) {
+                console.log(data.data)
+                alert(JSON.stringify(data.data))  // display the returned data as an alert.
+            }
+        });
+        e.preventDefault(); // block the traditional submission of the form.
+    });
+    // Inject our CSRF token into our AJAX request.
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", "{{ form.csrf }}")
+            }
+        }
+    })
+});
+        </script>
         <meta name="viewport" content = "width=device-width, initial-scale=1.0">
 
     </head>
-    <body>
-
+    <body
 
 <div class="container">
-
 
   <h2>Rental Property Analysis</h2>
 
   <form  action="" method="post" role="form">
     {{ form.csrf }}
     <div class="form-group">
-      <label for="mls_number">MLS Number:</label>
-      <input type="text" class="form-control" id="mls_number" name="mls_number" placeholder="What is the MLS # of the property?">
+      <label for="system_id">System (Region) ID*:</label>
+      <input type="text" class="form-control" id="system_id" name="system_id" placeholder="ID of MLS region (ex. CRMLS), subdomain of paragonrels.com/fnimls.com URL" value="crmls">
       <br>
-      <label for="gsheet_id">Google Sheet ID:</label>
+      <label for="mls_id">MLS ID:</label>
+      <input type="text" class="form-control" id="mls_id" name="mls_id" placeholder="ID of the MLS listings from paragonrels.com/fnimls.com URL">
+      <br>
+      <label for="mls_list">List of MLS Numbers:</label>
+      <br>
+      <textarea rows="10" class="form-control" id="mls_list" name="mls_list" placeholder="List the MLS # of the properties, one per line"></textarea>
+      <br>
+      <label for="gsheet_id">Google Sheet ID*:</label>
       <input type="text" class="form-control" id="gsheet_id" name="gsheet_id" placeholder="ID of the Google Sheet you want to add this property to.">
-
+      <br>
+      <label for="range_name">Google Sheet Range Name:</label>
+      <input type="text" class="form-control" id="range_name" name="range_name" placeholder="Leave blank for default: 'Four-Square Analysis!A:AX'" value="Four-Square Analysis!A:AX">
 
     </div>
     <button type="submit" class="btn btn-success">Add to Sheet</button>

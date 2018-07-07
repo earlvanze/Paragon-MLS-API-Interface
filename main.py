@@ -101,15 +101,19 @@ def get_google_oauth_token():
     return session.get('google_token')
 
 
-@app.route("/<string:gsheet_id>/<string:mls_number>/")
-def parse_listing(gsheet_id, mls_number = None):
+#@app.route("/<string:gsheet_id>/<string:mls_number>/")
+def parse_listing(gsheet_id, range_name, system_id, mls_id = None, mls_list = None):
     pathlib.Path(args.properties_folder).mkdir(exist_ok=True)       # create temporary listings folder if nonexistent
-    mls_numbers = get_mls_numbers_and_cookies()
-    if (mls_number):
-        mls_numbers = [mls_number]
-    get_properties(mls_numbers)
+    if not mls_id:
+        mls_id = args.mls_id
+    if not system_id:
+        system_id = args.system_id
+    mls_numbers = get_mls_numbers_and_cookies(mls_id, system_id, mls_list)
+    get_properties(mls_numbers, system_id)
     output_data = parse_json()
-    append_to_gsheet(output_data, gsheet_id)
+    result = append_to_gsheet(output_data, gsheet_id, range_name)
+    message = '{0} rows updated.'.format(DictQuery(result).get('updates/updatedRows'))
+    return message
 #    save_csv(output_data)
     empty_folder()
 
@@ -120,19 +124,23 @@ def index():
         me = google.get('userinfo')
         print(jsonify({"data": me.data}))
         form = ReusableForm(request.form)
-
         print (form.errors)
+
         if request.method == 'POST':
-            mls_number = request.form['mls_number']
+            mls_list = request.form['mls_list']
             gsheet_id = request.form['gsheet_id']
-            print (mls_number, " ", gsheet_id)
+            range_name = request.form['range_name']
+            mls_id = request.form['mls_id']
+            system_id = request.form['system_id']
+#            print (mls_number, " ", gsheet_id)
 
             if form.validate():
                 # Save the comment here.
-                parse_listing(gsheet_id, mls_number)
-                flash(mls_number + ' has been added to the spreadsheet ' + gsheet_id)
+                message = parse_listing(gsheet_id, range_name, system_id, mls_id, mls_list)
+                return jsonify(data={'message': message})
             else:
-                flash('Error: All the form fields are required.')
+                flash('Error: Some required fields are missing.')
+                return jsonify(data=form.errors)
 
         return render_template('index.html', form=form)
     return redirect(url_for('login'))

@@ -39,8 +39,11 @@ headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) '
 
 
 class ReusableForm(Form):
-    mls_number = StringField('MLS #:', validators=[validators.required()])
+#    mls_list = TextAreaField('List of MLS Numbers:', validators=[validators.required()])
     gsheet_id = StringField('Google Sheet ID:', validators=[validators.required()])
+    range_name = StringField('Range Name:', validators=[validators.required()])
+#    mls_id = StringField('MLS ID:', validators=[validators.required()])
+    system_id = StringField('System ID:', validators=[validators.required()])
 
 
 # Used to search for keys in nested dictionaries and handles when key does not exist
@@ -100,7 +103,7 @@ def user_args():
         '--system',
         dest='system_id',
         default=SYSTEM_ID,
-        help='ID of Google Sheet'
+        help='ID of MLS region (ex. CRMLS)'
     )
     args.add_argument(
         '-g',
@@ -114,7 +117,7 @@ def user_args():
 args = user_args()
 
 
-def get_mls_numbers_and_cookies(mls_id = args.mls_id, system_id = args.system_id):
+def get_mls_numbers_and_cookies(mls_id = args.mls_id, system_id = args.system_id, mls_list = None):
     # Takes in an MLS ID of MLS listings and returns list of MLS numbers
     # If path to list of MLS #s is given in user arguments, uses that instead
     mls_numbers = []
@@ -137,7 +140,9 @@ def get_mls_numbers_and_cookies(mls_id = args.mls_id, system_id = args.system_id
     listings = data["listings"]
     print ("Listings found from MLS ID: " + str(listings))
     print (args.mls_list_path)
-    if args.mls_list_path:
+    if mls_list:
+        mls_numbers = [x.strip() for x in mls_list.split('\n')]
+    elif args.mls_list_path:
         with open(args.mls_list_path, 'r') as mls_list:
             mls_numbers = [x.strip() for x in mls_list.read().split('\n')]
     else:
@@ -153,7 +158,7 @@ def get_mls_numbers_and_cookies(mls_id = args.mls_id, system_id = args.system_id
     return (mls_numbers)
 
 
-def get_properties(mls_numbers = [], properties_folder = args.properties_folder, system_id = args.system_id):
+def get_properties(mls_numbers = [], system_id = args.system_id, properties_folder = args.properties_folder):
     # Takes in list of MLS numbers, gets json for each property from Paragon API, and saves each json to {ADDRESS}.json
     print (mls_numbers)
     guid = requests.get("http://{0}.paragonrels.com/CollabLink/public/CreateGuid".format(system_id), headers = headers).text
@@ -382,6 +387,7 @@ def append_to_gsheet(output_data=[], gsheet_id = args.gsheet_id, range_name = RA
         spreadsheetId=gsheet_id, range=range_name,
         valueInputOption='USER_ENTERED', body=body).execute()
     print('{0} rows updated.'.format(DictQuery(result).get('updates/updatedRows')))
+    return result
 
 
 def empty_folder(properties_folder = args.properties_folder):
