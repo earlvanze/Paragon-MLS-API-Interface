@@ -129,11 +129,11 @@ def user_args():
 
 # args = user_args()
 args = {
-	"gsheet_id": "1QkDOfVxw0rtfB-XNEbWCAZEqY5njoIm8PDpvjpNCRrI",
-	"range_name": "Four-Square Analysis!A:AX",
-	"mls_id": "6d70b762-36a4-4ac0-bedd-d0dae2920867",
-	"system_id": "CRMLS",
-	"properties_folder": "listings",
+	"gsheet_id": GSHEET_ID,
+	"range_name": RANGE_NAME,
+	"mls_id": MLS_ID,
+	"system_id": SYSTEM_ID,
+	"properties_folder": PROPERTIES_FOLDER,
 	"mls_list_path": None,
 }
 
