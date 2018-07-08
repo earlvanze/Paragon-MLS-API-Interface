@@ -10,31 +10,24 @@
 
 from __future__ import print_function
 import os
-import pathlib
 import requests
+import json
 from functions import *
 from time import time
 from requests_oauthlib import OAuth2Session
-from apiclient.discovery import build
-from httplib2 import Http
 from flask import Flask, flash, render_template, redirect, url_for, session, request, jsonify
-from oauth2client import client
 from pprint import pformat
 
 
 # This information is obtained upon registration of a new Google OAuth
 # application at https://code.google.com/apis/console
-client_id = "32857849252-ev5dnc6035d959cfdjngq6b3qiupr5mr.apps.googleusercontent.com"
-client_secret = "_hyaZfOkNJIYxTl_HIz4S-rH"
 redirect_uri = 'https://api-project-32857849252.appspot.com/callback'
-
-
-# Uncomment for detailed oauthlib logs
-#import logging
-#import sys
-#log = logging.getLogger('oauthlib')
-#log.addHandler(logging.StreamHandler(sys.stdout))
-#log.setLevel(logging.DEBUG)
+client_secret_filename = "client_secret.json"
+with open(client_secret_filename, 'r') as file:
+    json_repr = file.read()
+    data = json.loads(json_repr)
+    client_id = DictQuery(data).get("web/client_id")
+    client_secret = DictQuery(data).get("web/client_secret")
 
 
 # OAuth endpoints given in the Google API documentation
@@ -54,41 +47,8 @@ app.debug = True
 app.secret_key = os.urandom(24)
 
 
-def append_to_gsheet(output_data=[], gsheet_id = args['gsheet_id'], range_name = RANGE_NAME):
-    # Setup the Sheets API
-    token = session['oauth_token']
-    creds = client.AccessTokenCredentials(token['access_token'], headers['User-Agent'])
-#    if not creds or creds.invalid:
-#        flow = client.flow_from_clientsecrets('client_secret.json', scope)
-#        creds = tools.run_flow(flow, store)
-    service = build('sheets', 'v4', http=creds.authorize(Http()))
-
-    # Call the Sheets API
-    body = {
-        'values': output_data
-    }
-    result = service.spreadsheets().values().append(
-        spreadsheetId=gsheet_id, range=range_name,
-        valueInputOption='USER_ENTERED', body=body).execute()
-    print('{0} rows updated.'.format(DictQuery(result).get('updates/updatedRows')))
-    return result
-
-
 #@app.route("/<string:gsheet_id>/<string:mls_number>/")
-def parse_listing(gsheet_id, range_name, system_id, mls_id = None, mls_list = None):
-    pathlib.Path(args['properties_folder']).mkdir(exist_ok=True)       # create temporary listings folder if nonexistent
-    if not mls_id:
-        mls_id = args['mls_id']
-    if not system_id:
-        system_id = args['system_id']
-    mls_numbers = get_mls_numbers_and_cookies(mls_id, system_id, mls_list)
-    get_properties(mls_numbers, system_id)
-    output_data = parse_json()
-    result = append_to_gsheet(output_data, gsheet_id, range_name)
-    message = '{0} rows updated.'.format(DictQuery(result).get('updates/updatedRows'))
-    return message
-#    save_csv(output_data)
-    empty_folder()
+#parse_form(gsheet_id, range_name, system_id, mls_id = None, mls_list = None)
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -103,11 +63,10 @@ def index():
             range_name = request.form['range_name']
             mls_id = request.form['mls_id']
             system_id = request.form['system_id']
-#            print (mls_number, " ", gsheet_id)
 
             if form.validate():
-                # Save the comment here.
-                message = parse_listing(gsheet_id, range_name, system_id, mls_id, mls_list)
+                message = parse_form(gsheet_id, range_name, system_id, mls_id, mls_list)
+                flash(message)
                 return jsonify(data={'message': message})
             else:
                 flash('Error: Some required fields are missing.')
@@ -115,6 +74,7 @@ def index():
 
         return render_template('index.html', form=form)
     return redirect(url_for('login'))
+
 
 @app.route("/login")
 def login():
@@ -133,6 +93,7 @@ def login():
     # State is used to prevent CSRF, keep this for later.
     session['oauth_state'] = state
     return redirect(authorization_url)
+
 
 # Step 2: User authorization, this happens on the provider.
 @app.route("/callback", methods=["GET"])

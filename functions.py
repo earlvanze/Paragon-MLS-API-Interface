@@ -9,8 +9,14 @@ import shutil
 import argparse
 import traceback
 import datetime
+import pathlib
 from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
+from apiclient.discovery import build
+from httplib2 import Http
+from oauth2client import client
+from flask import Flask, flash, render_template, redirect, url_for, session, request, jsonify
 from gunicornconf import *
+
 
 # You should change these to match your own spreadsheet
 GSHEET_ID = '1QkDOfVxw0rtfB-XNEbWCAZEqY5njoIm8PDpvjpNCRrI'
@@ -326,6 +332,30 @@ def parse_json(properties_folder = args['properties_folder']):
     output_data = [x for x in output_data if x[0] != None]    # delete empty rows (inactive listings) from output_data
 #    print (output_data)
     return (output_data)
+    
+
+def append_to_gsheet(output_data=[], gsheet_id = args['gsheet_id'], range_name = RANGE_NAME):
+    # Setup the Sheets API
+    token = session['oauth_token']
+    creds = client.AccessTokenCredentials(token['access_token'], headers['User-Agent'])
+#    if not creds or creds.invalid:
+#        flow = client.flow_from_clientsecrets('client_secret.json', scope)
+#        creds = tools.run_flow(flow, store)
+    service = build('sheets', 'v4', http=creds.authorize(Http()))
+
+    # Call the Sheets API
+    body = {
+        'values': output_data
+    }
+    try:
+        result = service.spreadsheets().values().append(
+            spreadsheetId=gsheet_id, range=range_name,
+            valueInputOption='USER_ENTERED', body=body).execute()
+        message = ('{0} rows updated.'.format(DictQuery(result).get('updates/updatedRows')))
+        return message
+    except Exception as err:
+        traceback.print_exc()
+        return json.loads(err.content.decode('utf-8'))['error']['message']
 
 
 def save_csv(output_data = [[None] * 50]):
@@ -395,3 +425,18 @@ def empty_folder(properties_folder = args['properties_folder']):
     except:
         traceback.print_exc()
         pass
+        
+
+def parse_form(gsheet_id, range_name, system_id, mls_id = None, mls_list = None):
+    pathlib.Path(args['properties_folder']).mkdir(exist_ok=True)       # create temporary listings folder if nonexistent
+    if not mls_id:
+        mls_id = args['mls_id']
+    if not system_id:
+        system_id = args['system_id']
+    mls_numbers = get_mls_numbers_and_cookies(mls_id, system_id, mls_list)
+    get_properties(mls_numbers, system_id)
+    output_data = parse_json()
+    result = append_to_gsheet(output_data, gsheet_id, range_name)
+#    save_csv(output_data)
+    empty_folder()
+    return result
