@@ -10,7 +10,7 @@ import argparse
 import traceback
 import datetime
 from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
-
+from gunicornconf import *
 
 # You should change these to match your own spreadsheet
 GSHEET_ID = '1QkDOfVxw0rtfB-XNEbWCAZEqY5njoIm8PDpvjpNCRrI'
@@ -23,7 +23,7 @@ SYSTEM_ID = "CRMLS"
 # You generally don't need to change these
 PROPERTIES_FOLDER = "listings"
 # {0} is the SYSTEM_ID, {1} is the MLS number for a property,
-# and {2} is a guid generated from http://{args.system_id}.paragonrels.com/CollabLink/public/CreateGuid
+# and {2} is a guid generated from http://{args['system_id']}.paragonrels.com/CollabLink/public/CreateGuid
 PARAGON_API_URL = "http://{0}.paragonrels.com/CollabLink/public/BlazeGetRequest?ApiAction=listing%2FGetListingDetails%2F" \
                   "&UrlData={1}%2F0%2F2%2Ffalse%2F{2}"
 
@@ -64,21 +64,28 @@ class DictQuery(dict):
         return val
 
 
+class StandaloneApplication(gunicorn.app.base.BaseApplication):
+
+    def __init__(self, app, options=None):
+        self.options = options or {}
+        self.application = app
+        super(StandaloneApplication, self).__init__()
+
+    def load_config(self):
+        config = dict([(key, value) for key, value in iteritems(self.options)
+                       if key in self.cfg.settings and value is not None])
+        for key, value in iteritems(config):
+            self.cfg.set(key.lower(), value)
+
+    def load(self):
+        return self.application
+
+
 # Returns empty string if s is None
 def xstr(s):
     if s is None:
         return ''
     return str(s)
-
-
-def credentials_to_dict(credentials):
-    print(credentials)
-    return {'token': credentials.access_token,
-          'refresh_token': credentials.refresh_token,
-          'token_uri': credentials.token_uri,
-          'client_id': credentials.client_id,
-          'client_secret': credentials.client_secret,
-          'scopes': credentials.scopes}
 
 
 def user_args():
@@ -120,10 +127,17 @@ def user_args():
     )
     return args.parse_args()
 
-args = user_args()
+# args = user_args()
+args = {
+	"gsheet_id": "1QkDOfVxw0rtfB-XNEbWCAZEqY5njoIm8PDpvjpNCRrI",
+	"range_name": "Four-Square Analysis!A:AX",
+	"mls_id": "6d70b762-36a4-4ac0-bedd-d0dae2920867",
+	"system_id": "CRMLS",
+	"properties_folder": "listings",
+	"mls_list_path": None,
+}
 
-
-def get_mls_numbers_and_cookies(mls_id = args.mls_id, system_id = args.system_id, mls_list = None):
+def get_mls_numbers_and_cookies(mls_id = args['mls_id'], system_id = args['system_id'], mls_list = None):
     # Takes in an MLS ID of MLS listings and returns list of MLS numbers
     # If path to list of MLS #s is given in user arguments, uses that instead
     mls_numbers = []
@@ -145,11 +159,11 @@ def get_mls_numbers_and_cookies(mls_id = args.mls_id, system_id = args.system_id
     data = json.loads(r.text.split('[]')[0])
     listings = data["listings"]
     print ("Listings found from MLS ID: " + str(listings))
-    print (args.mls_list_path)
+    print (args['mls_list_path'])
     if mls_list:
         mls_numbers = [x.strip() for x in mls_list.split('\n')]
-    elif args.mls_list_path:
-        with open(args.mls_list_path, 'r') as mls_list:
+    elif args['mls_list_path']:
+        with open(args['mls_list_path'], 'r') as mls_list:
             mls_numbers = [x.strip() for x in mls_list.read().split('\n')]
     else:
         if listings:
@@ -164,7 +178,7 @@ def get_mls_numbers_and_cookies(mls_id = args.mls_id, system_id = args.system_id
     return (mls_numbers)
 
 
-def get_properties(mls_numbers = [], system_id = args.system_id, properties_folder = args.properties_folder):
+def get_properties(mls_numbers = [], system_id = args['system_id'], properties_folder = args['properties_folder']):
     # Takes in list of MLS numbers, gets json for each property from Paragon API, and saves each json to {ADDRESS}.json
     print (mls_numbers)
     guid = requests.get("http://{0}.paragonrels.com/CollabLink/public/CreateGuid".format(system_id), headers = headers).text
@@ -181,8 +195,8 @@ def get_properties(mls_numbers = [], system_id = args.system_id, properties_fold
             continue
 
 
-def parse_json(properties_folder = args.properties_folder):
-    # Parse the json files saved in args.properties_folder and returns 2D array of properties
+def parse_json(properties_folder = args['properties_folder']):
+    # Parse the json files saved in args['properties_folder'] and returns 2D array of properties
     filenames = []
     for filename in glob.iglob('{}/*.json'.format(properties_folder)):
          filenames.append(filename)
@@ -214,9 +228,9 @@ def parse_json(properties_folder = args.properties_folder):
                 baths_part = DictQuery(data).get("PROP_INFO/BATHS_PART")
                 public_remarks = DictQuery(data).get("PROP_INFO/REMARKS_GENERAL")
                 mls_link = '=HYPERLINK("http://{0}.paragonrels.com/publink/Report.aspx?GUID={1}&ListingID={2}:0&layout_id=3","{2}")'\
-                    .format(args.system_id, args.mls_id, mls_number)
+                    .format(args['system_id'], args['mls_id, mls_number'])
                 # If an MLS ID is NOT passed in (default MLS_ID used), mls_link should be zillow address search
-                if args.mls_id == MLS_ID:
+                if args['mls_id'] == MLS_ID:
                     mls_link = '=HYPERLINK("https://www.zillow.com/homes/{0}_rb/","{1}")' \
                         .format(full_address, mls_number)
                 # Two possible formats for MLS sheet encountered so far:
@@ -375,7 +389,7 @@ def save_csv(output_data = [[None] * 50]):
     )
 
 
-def empty_folder(properties_folder = args.properties_folder):
+def empty_folder(properties_folder = args['properties_folder']):
     try:
         shutil.rmtree(properties_folder)
     except:

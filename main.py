@@ -9,7 +9,6 @@
 """
 
 from __future__ import print_function
-
 import os
 import pathlib
 import requests
@@ -27,15 +26,15 @@ from pprint import pformat
 # application at https://code.google.com/apis/console
 client_id = "32857849252-ev5dnc6035d959cfdjngq6b3qiupr5mr.apps.googleusercontent.com"
 client_secret = "_hyaZfOkNJIYxTl_HIz4S-rH"
-redirect_uri = 'http://localhost:8080/callback'
+redirect_uri = 'https://api-project-32857849252.appspot.com/callback'
 
 
 # Uncomment for detailed oauthlib logs
-import logging
-import sys
-log = logging.getLogger('oauthlib')
-log.addHandler(logging.StreamHandler(sys.stdout))
-log.setLevel(logging.DEBUG)
+#import logging
+#import sys
+#log = logging.getLogger('oauthlib')
+#log.addHandler(logging.StreamHandler(sys.stdout))
+#log.setLevel(logging.DEBUG)
 
 
 # OAuth endpoints given in the Google API documentation
@@ -55,7 +54,7 @@ app.debug = True
 app.secret_key = os.urandom(24)
 
 
-def append_to_gsheet(output_data=[], gsheet_id = args.gsheet_id, range_name = RANGE_NAME):
+def append_to_gsheet(output_data=[], gsheet_id = args['gsheet_id'], range_name = RANGE_NAME):
     # Setup the Sheets API
     token = session['oauth_token']
     creds = client.AccessTokenCredentials(token['access_token'], headers['User-Agent'])
@@ -77,11 +76,11 @@ def append_to_gsheet(output_data=[], gsheet_id = args.gsheet_id, range_name = RA
 
 #@app.route("/<string:gsheet_id>/<string:mls_number>/")
 def parse_listing(gsheet_id, range_name, system_id, mls_id = None, mls_list = None):
-    pathlib.Path(args.properties_folder).mkdir(exist_ok=True)       # create temporary listings folder if nonexistent
+    pathlib.Path(args['properties_folder']).mkdir(exist_ok=True)       # create temporary listings folder if nonexistent
     if not mls_id:
-        mls_id = args.mls_id
+        mls_id = args['mls_id']
     if not system_id:
-        system_id = args.system_id
+        system_id = args['system_id']
     mls_numbers = get_mls_numbers_and_cookies(mls_id, system_id, mls_list)
     get_properties(mls_numbers, system_id)
     output_data = parse_json()
@@ -259,8 +258,16 @@ def logout():
     return redirect(url_for('login'))
 
 
-if __name__ == '__main__':
+def main():
     # This allows us to use a plain HTTP callback
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
-
+    options = {
+        'bind': '%s:%s' % ('127.0.0.1', '8080'),
+        'workers': number_of_workers(),
+    }
     app.run(host='0.0.0.0', port=8080)
+    StandaloneApplication(app, options).run()
+    
+
+if __name__ == '__main__':
+	main()
