@@ -5,14 +5,10 @@ import pandas as pd
 import time
 import glob
 import requests
-import os, shutil
-import pathlib
+import shutil
 import argparse
 import traceback
 import datetime
-from apiclient.discovery import build
-from httplib2 import Http
-from oauth2client import file, client, tools
 from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
 
 
@@ -73,6 +69,16 @@ def xstr(s):
     if s is None:
         return ''
     return str(s)
+
+
+def credentials_to_dict(credentials):
+    print(credentials)
+    return {'token': credentials.access_token,
+          'refresh_token': credentials.refresh_token,
+          'token_uri': credentials.token_uri,
+          'client_id': credentials.client_id,
+          'client_secret': credentials.client_secret,
+          'scopes': credentials.scopes}
 
 
 def user_args():
@@ -367,27 +373,6 @@ def save_csv(output_data = [[None] * 50]):
     pd.DataFrame(output_data, columns = columns).to_csv(
         out_csv, index = False, encoding = "UTF-8"
     )
-
-
-def append_to_gsheet(output_data=[], gsheet_id = args.gsheet_id, range_name = RANGE_NAME):
-    # Setup the Sheets API
-    SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
-    store = file.Storage('credentials.json')
-    creds = store.get()
-    if not creds or creds.invalid:
-        flow = client.flow_from_clientsecrets('client_secret.json', SCOPES)
-        creds = tools.run_flow(flow, store)
-    service = build('sheets', 'v4', http=creds.authorize(Http()))
-
-    # Call the Sheets API
-    body = {
-        'values': output_data
-    }
-    result = service.spreadsheets().values().append(
-        spreadsheetId=gsheet_id, range=range_name,
-        valueInputOption='USER_ENTERED', body=body).execute()
-    print('{0} rows updated.'.format(DictQuery(result).get('updates/updatedRows')))
-    return result
 
 
 def empty_folder(properties_folder = args.properties_folder):
