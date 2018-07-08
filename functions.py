@@ -228,7 +228,7 @@ def parse_json(properties_folder = args['properties_folder']):
                 baths_part = DictQuery(data).get("PROP_INFO/BATHS_PART")
                 public_remarks = DictQuery(data).get("PROP_INFO/REMARKS_GENERAL")
                 mls_link = '=HYPERLINK("http://{0}.paragonrels.com/publink/Report.aspx?GUID={1}&ListingID={2}:0&layout_id=3","{2}")'\
-                    .format(args['system_id'], args['mls_id'], ['mls_number'])
+                    .format(args['system_id'], args['mls_id'], mls_number)
                 # If an MLS ID is NOT passed in (default MLS_ID used), mls_link should be zillow address search
                 if args['mls_id'] == MLS_ID:
                     mls_link = '=HYPERLINK("https://www.zillow.com/homes/{0}_rb/","{1}")' \
