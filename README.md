@@ -13,12 +13,12 @@ This spreadsheet was derived from the PDF available at
 <a href="https://www.biggerpockets.com/renewsblog/easily-analyzing-rental-properties-four-square-method/">BiggerPockets.com</a>
 
 You can try out a live demo of the program at <a href="https://api-project-32857849252.appspot.com/">
-https://api-project-32857849252.appspot.com/</a>. Go to the Google Sheet and click File > Make a Copy.
-Make your own copy of the Google spreadsheet linked above and replace GSHEET_ID
-with your own Google Sheet's ID (derived from the URL https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID})
+<b>https://api-project-32857849252.appspot.com/</b></a>. Go to the Google Sheet and click File > Make a Copy.
+Make your own copy of the Google spreadsheet linked above and copy your own Google Sheet's ID
+(derived from the URL https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}) to the Google Sheet ID box on the form.
 
 I've tested this with crmls, hudson, gamls, and triangle regions/system IDs I found on Twitter.
-Other *.paragonrels.com regions may or may not work out of the box.
+Other *.paragonrels.com regions may or may not work out of the box. Change the System ID accordingly.
 
 You should have an agent send you a listing from your region's MLS in order to get the GUID ("MLS ID") from the URL,
 which is used to pull the listings in that ID.
