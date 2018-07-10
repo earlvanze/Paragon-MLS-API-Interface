@@ -2,7 +2,7 @@
 ### For Automated Four-Square Analysis of Rental Properties
 
 This program takes in an ID from a Paragonrels.com or fnimls.com URL and automatically populates your own copy of this
-<a href="https://docs.google.com/spreadsheets/d/1S-Vqsw_JyrCo6_zziWM_llZNl8AU92MeLZx9Xp5lMyw">Google Spreadsheet</a>
+<a href="https://docs.google.com/spreadsheets/d/1S-Vqsw_JyrCo6_zziWM_llZNl8AU92MeLZx9Xp5lMyw"><b>Google Spreadsheet</b></a>
 in order to calculate Cash Flow and Cash-on-Cash Return for investment properties. No coding experience necessary.
 
 Row 2 of the spreadsheet has formulas that automatically populate with calculations for each new row.
@@ -12,6 +12,13 @@ I recommend leaving these formulas in place.
 This spreadsheet was derived from the PDF available at
 <a href="https://www.biggerpockets.com/renewsblog/easily-analyzing-rental-properties-four-square-method/">BiggerPockets.com</a>
 
+You can try out a live demo of the program at <a href="https://api-project-32857849252.appspot.com/">
+https://api-project-32857849252.appspot.com/</a>. Go to the Google Sheet and click File > Make a Copy.
+Make your own copy of the Google spreadsheet linked above and replace GSHEET_ID
+with your own Google Sheet's ID (derived from the URL https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID})
+
+I've tested this with crmls, hudson, gamls, and triangle regions/system IDs I found on Twitter.
+Other *.paragonrels.com regions may or may not work out of the box.
 
 You should have an agent send you a listing from your region's MLS in order to get the GUID ("MLS ID") from the URL,
 which is used to pull the listings in that ID.
