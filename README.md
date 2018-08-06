@@ -152,3 +152,22 @@ But that's beyond the scope of this git repo.
 Relevant reading: https://blog.hartleybrody.com/web-scraping/, I found after the fact.
 
 Enjoy!
+
+## Donate
+
+If you like this program, please donate using any of the methods below!
+
+
+Square Cash	http://cash.me/$digitalkid
+Venmo	https://venmo.com/earlco
+PayPal	http://paypal.me/earlco
+Zelle	earlvanze@gmail.com
+BTC	12icq2NfvXDYExaH3a4FVnWJwerb1oj31Z
+ETH	0x234AD7D3225dC28f2B292cCBE05CdD321C4aCC5B
+ZEC	t1duLU96HyXQ7dGwdesZB6C4iCPe5HZw5ar
+LTC	LQymEUqGK9dBeugi2bNNtt4LEGpm6bMYjJ
+NEO/GAS	ALfeqEsmEexzk5RFGUZinedMAtjnfUz4f7
+SC	de1caac41616a762428a2c2baca667bde5fb27ff6b0717bb0d2c1b3493a3f972933524ef9d19
+
+
+If you want me to build a version for YOUR region, please reach out by email: earlvanze@gmail.com
