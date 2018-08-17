@@ -22,7 +22,8 @@ from pprint import pformat
 # This information is obtained upon registration of a new Google OAuth
 # application at https://code.google.com/apis/console
 #redirect_uri = 'https://localhost:8080/callback'
-redirect_uri = 'https://api-project-32857849252.appspot.com/callback'
+#redirect_uri = 'https://api-project-32857849252.appspot.com/callback'
+redirect_uri = 'https://rentals.mymealtor.com/callback'
 client_secret_filename = "client_secret.json"
 with open(client_secret_filename, 'r') as file:
     json_repr = file.read()
