@@ -2,7 +2,7 @@
 ### For Automated Four-Square Analysis of Rental Properties
 
 This program takes in an ID from a Paragonrels.com or fnimls.com URL and automatically populates your own copy of this
-<a href="https://docs.google.com/spreadsheets/d/1S-Vqsw_JyrCo6_zziWM_llZNl8AU92MeLZx9Xp5lMyw"><b>Google Spreadsheet</b></a>
+<a href="https://docs.google.com/spreadsheets/d/1S-Vqsw_JyrCo6_zziWM_llZNl8AU92MeLZx9Xp5lMyw/copy"><b>Google Spreadsheet</b></a>
 in order to calculate Cash Flow and Cash-on-Cash Return for investment properties. No coding experience necessary.
 
 Row 2 of the spreadsheet has formulas that automatically populate with calculations for each new row.
@@ -13,7 +13,7 @@ This spreadsheet was derived from the PDF available at
 <a href="https://www.biggerpockets.com/renewsblog/easily-analyzing-rental-properties-four-square-method/">BiggerPockets.com</a>
 
 You can try out a live demo of the program at <a href="https://api-project-32857849252.appspot.com/">
-<b>https://api-project-32857849252.appspot.com/</b></a>. Go to the Google Sheet and click File > Make a Copy.
+<b>https://api-project-32857849252.appspot.com/</b></a>. Go to the Google Sheet and click File > Make a Copy if it doesn't ask you to copy automatically.
 Make your own copy of the Google spreadsheet linked above and copy your own Google Sheet's ID
 (derived from the URL https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}) to the Google Sheet ID box on the form.
 
@@ -152,3 +152,22 @@ But that's beyond the scope of this git repo.
 Relevant reading: https://blog.hartleybrody.com/web-scraping/, I found after the fact.
 
 Enjoy!
+
+## Donate
+
+If you like this program, please donate using any of the methods below!
+
+
+Square Cash	http://cash.me/$digitalkid
+Venmo	https://venmo.com/earlco
+PayPal	http://paypal.me/earlco
+Zelle	earlvanze@gmail.com
+BTC	12icq2NfvXDYExaH3a4FVnWJwerb1oj31Z
+ETH	0x234AD7D3225dC28f2B292cCBE05CdD321C4aCC5B
+ZEC	t1duLU96HyXQ7dGwdesZB6C4iCPe5HZw5ar
+LTC	LQymEUqGK9dBeugi2bNNtt4LEGpm6bMYjJ
+NEO/GAS	ALfeqEsmEexzk5RFGUZinedMAtjnfUz4f7
+SC	de1caac41616a762428a2c2baca667bde5fb27ff6b0717bb0d2c1b3493a3f972933524ef9d19
+
+
+If you want me to build a version for YOUR region, please reach out by email: earlvanze@gmail.com
