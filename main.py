@@ -69,9 +69,11 @@ def index():
 
             if form.validate():
                 message = parse_form(gsheet_id, range_name, system_id, mls_id, mls_list)
+                alert(message)
                 flash(message)
                 return jsonify(data={'message': message})
             else:
+                alert('Error: Some required fields are missing.')
                 flash('Error: Some required fields are missing.')
                 return jsonify(data=form.errors)
 

@@ -6,41 +6,42 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
         <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
         <script>
-$(document).ready(function() {
-    $('form').submit(function (e) {
-        var url = '/'; // send the form data here.
-        $.ajax({
-            type: "POST",
-            url: url,
-            data: $('form').serialize(), // serializes the form's elements.
-            success: function (data) {
-                console.log(data.data)
-                alert(JSON.stringify(data.data))  // display the returned data as an alert.
-            }
-        });
-        e.preventDefault(); // block the traditional submission of the form.
-    });
-    // Inject our CSRF token into our AJAX request.
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", "{{ form.csrf }}")
-            }
-        }
-    })
-});
-.footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    background-color: red;
-    color: white;
-    text-align: center;
-}
+			$(document).ready(function() {
+			    $('form').submit(function (e) {
+			        var url = '/'; // send the form data here.
+			        $.ajax({
+			            type: "POST",
+			            url: url,
+			            data: $('form').serialize(), // serializes the form's elements.
+			            success: function (data) {
+			                console.log(data.data);
+			                alert(JSON.stringify(data.data));  // display the returned data as an alert.
+			            }
+			        });
+			        e.preventDefault(); // block the traditional submission of the form.
+			    });
+			    // Inject our CSRF token into our AJAX request.
+			    $.ajaxSetup({
+			        beforeSend: function(xhr, settings) {
+			            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+			                xhr.setRequestHeader("X-CSRFToken", "{{ form.csrf }}");
+			            }
+			        }
+			    });
+			});
         </script>
         <meta name="viewport" content = "width=device-width, initial-scale=1.0">
-
+		<style>
+			footer {
+			    position: fixed;
+			    left: 0;
+			    bottom: 0;
+			    width: 100%;
+			    background-color: gray;
+			    color: white;
+			    text-align: center;
+			}
+		</style>
     </head>
     <body
 

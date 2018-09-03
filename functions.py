@@ -318,6 +318,7 @@ def parse_json(properties_folder = args['properties_folder']):
                     output_data[i][1] = mls_link
                     output_data[i][2] = price_prev
                     output_data[i][3] = price_current
+                    output_data[i][4] = price_current * 0.85
                     output_data[i][9] = age
                     output_data[i][10] = type + '\n' + beds + 'BD' + '/' + baths_full + '.' + xstr(baths_part) + 'BA'
                     output_data[i][11] = public_remarks + "\n{0} as of {1}-{2}-{3}".format(status, str(now.year), str(now.month), str(now.day))
