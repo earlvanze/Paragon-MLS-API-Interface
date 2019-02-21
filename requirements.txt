@@ -21,7 +21,7 @@ pathlib==1.0.1
 pandas==0.23.2
 pathlib2==2.3.2
 pprint==0.1
-requests==2.19.1
+requests==2.20.0
 requests-oauthlib==1.0.0
 virtualenv==16.0.0
 WTForms==2.2.1
