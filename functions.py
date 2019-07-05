@@ -19,12 +19,12 @@ from gunicornconf import *
 
 
 # You should change these to match your own spreadsheet
-GSHEET_ID = '1QkDOfVxw0rtfB-XNEbWCAZEqY5njoIm8PDpvjpNCRrI'
+GSHEET_ID = '1QkDOfVxw0rtfB-pip oppen'
 RANGE_NAME = 'Four-Square Analysis!A:AX'
 
 # MLS_ID gets passed in by user but default is here if none passed in
 MLS_ID = "6d70b762-36a4-4ac0-bedd-d0dae2920867"
-SYSTEM_ID = "CRMLS"
+SYSTEM_ID = "GLOBALMLS"
 
 # You generally don't need to change these
 PROPERTIES_FOLDER = "listings"
@@ -41,10 +41,10 @@ headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) '
 
 
 class ReusableForm(Form):
-#    mls_list = TextAreaField('List of MLS Numbers:', validators=[validators.required()])
+    mls_list = TextAreaField('List of MLS Numbers:')
     gsheet_id = StringField('Google Sheet ID:', validators=[validators.required()])
     range_name = StringField('Range Name:', validators=[validators.required()])
-#    mls_id = StringField('MLS ID:', validators=[validators.required()])
+    mls_id = StringField('MLS ID:')
     system_id = StringField('System ID:', validators=[validators.required()])
 
 

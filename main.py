@@ -21,9 +21,9 @@ from pprint import pformat
 
 # This information is obtained upon registration of a new Google OAuth
 # application at https://code.google.com/apis/console
-#redirect_uri = 'https://localhost:8080/callback'						# for testing on local computer or Google App Engine
+redirect_uri = 'https://localhost:8080/callback'						# for testing on local computer or Google App Engine
 #redirect_uri = 'https://api-project-32857849252.appspot.com/callback'	# for live deployment in Google App Engine
-redirect_uri = 'https://rentals.mymealtor.com/callback'				# for live deployment with subdomain in Google App Engine
+#redirect_uri = 'https://rentals.mymealtor.com/callback'				# for live deployment with subdomain in Google App Engine
 
 client_secret_filename = "client_secret.json"
 with open(client_secret_filename, 'r') as file:
@@ -41,7 +41,7 @@ scope = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
-    "https://www.googleapis.com/auth/plus.me",
+    "openid",
 ]
 
 
@@ -230,7 +230,7 @@ def main():
         'bind': '%s:%s' % ('127.0.0.1', '8080'),
         'workers': number_of_workers(),
     }
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8080, ssl_context='adhoc')
     StandaloneApplication(app, options).run()
     
 

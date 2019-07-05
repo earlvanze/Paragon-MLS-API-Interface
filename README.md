@@ -17,11 +17,11 @@ You can try out a live demo of the program at <a href="https://rentals.mymealtor
 Make your own copy of the Google spreadsheet linked above and copy your own Google Sheet's ID
 (derived from the URL https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}) to the Google Sheet ID box on the form. The only required fields are the Google Sheet ID in the field at the bottom, and the MLS number(s) pasted in the big text box.
 
-I've tested this with crmls, hudson, gamls, and triangle regions/system IDs I found on Twitter.
+I've tested this with globalmls, imls, hudson, gamls, and triangle regions/system IDs I found on Twitter.
 Other *.paragonrels.com regions may or may not work out of the box. Change the System ID accordingly.
 
 You should have an agent send you a listing from your region's MLS in order to get the GUID ("MLS ID") from the URL,
-which is used to pull the listings in that ID.
+which is used to pull the listings in that ID, but this is not necessary.
 
 Alternatively, if you know your local MLS System ID, you can pass that in along with a text file
 containing a list of MLS numbers you're interested in analyzing.
@@ -39,7 +39,7 @@ and thus, the json result from the get_properties() function is formatted differ
 ## Prerequisites for running the app on your desktop
 From https://developers.google.com/sheets/api/quickstart/python
 
-To run this program, you'll need:
+To run this program locally, you'll need:
 
 Python 2.6 or greater.
 
@@ -47,8 +47,6 @@ This was developed and tested using Python 3.6.4 on macOS High Sierra
 but it should work in any other Python environment as long as the necessary Python modules are installed.
 If Python complains that one of the modules is missing, just install that module and let me know that this
 documentation is missing a package.
-
-I did not test this in a fresh Python environment or virtualenv isolated from any existing modules.
 
 
 The <a href="https://pypi.python.org/pypi/pip">pip</a> package management tool.
@@ -89,6 +87,7 @@ Move this file to your working directory and rename it client_secret.json.
 Run the following command in Terminal to install the necessary libraries using pip:
 ```
 pip install --upgrade pandas httplib2 google-api-python-client oauth2client
+pip install -r requirements.txt
 ```
 See the library's <a href="https://developers.google.com/api-client-library/python/start/installation">installation page</a> for the alternative installation options.
 
@@ -136,7 +135,7 @@ http://{system_id}.paragonrels.com/publink/default.aspx?GUID={mls_id}
 
 
 I was originally going to use the legacy version's request URL:
-http://crmls.paragonrels.com/publink/Report.aspx?&GUID={mls_id}&ListingID={mls_number}:0&layout_id=3
+http://globalmls.paragonrels.com/publink/Report.aspx?&GUID={mls_id}&ListingID={mls_number}:0&layout_id=3
 and scrape the output HTML, but why do scraping when a perfectly good public API is available?
 
 
