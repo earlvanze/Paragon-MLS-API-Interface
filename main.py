@@ -57,6 +57,11 @@ app.secret_key = os.urandom(24)
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
+    return render_template('index.html')
+
+
+@app.route("/app", methods=['GET', 'POST'])
+def analyze():
     if 'oauth_token' in session:
         form = ReusableForm(request.form)
         print (form.errors)
@@ -76,7 +81,7 @@ def index():
                 flash('Error: Some required fields are missing.')
                 return jsonify(data=form.errors)
 
-        return render_template('index.html', form=form)
+        return render_template('analyze.html', form=form)
     return redirect(url_for('login'))
 
 
@@ -117,7 +122,7 @@ def callback():
     # We use the session as a simple DB for this example.
     session['oauth_token'] = token
 
-    return redirect(url_for('index'))
+    return redirect(url_for('analyze'))
 
 
 @app.route("/menu", methods=["GET"])
