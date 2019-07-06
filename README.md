@@ -17,8 +17,8 @@ You can try out a live demo of the program at <a href="https://rentals.mymealtor
 Make your own copy of the Google spreadsheet linked above and copy your own Google Sheet's ID
 (derived from the URL https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}) to the Google Sheet ID box on the form. The only required fields are the Google Sheet ID in the field at the bottom, and the MLS number(s) pasted in the big text box.
 
-I've tested this with globalmls, imls, hudson, gamls, and triangle regions/system IDs I found on Twitter.
-Other *.paragonrels.com regions may or may not work out of the box. Change the System ID accordingly.
+I've tested this with globalmls (Eastern NY and Southern Adirondack), imls (InterMountain - Idaho), cren (SW Colorado) hudson (Hudson County, NJ), gamls (Georgia), and triangle (Triangle region, NC) regions/system IDs.
+Other *.paragonrels.com regions may or may not work out of the box. Change the System ID accordingly. parse_json() will likely need tweaking to work with your region's listing data structure.
 
 You should have an agent send you a listing from your region's MLS in order to get the GUID ("MLS ID") from the URL,
 which is used to pull the listings in that ID, but this is not necessary.
