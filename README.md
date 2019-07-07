@@ -36,7 +36,7 @@ and thus, the json result from the get_properties() function is formatted differ
   general format so it can be parsed properly.
 
 
-## Prerequisites for running the app on your desktop
+## Prerequisites for running the app on your desktop (localhost)
 From https://developers.google.com/sheets/api/quickstart/python
 
 To run this program locally, you'll need:
@@ -107,12 +107,19 @@ returned by get_properties() and passed in to save_csv() MUST match the number o
 
 Example: 'Four-Square Analysis!A:AX'
 
-## Step 4: Run the program
-Run the sample using the following command [optional flags]
+## Step 4a: Run the web app
+Run the Flask web server using the following command:
+```
+python main.py
+```
+
+## Step 4b: Run the program in the terminal:
+Alternatively, you could disable Flask and run it in Terminal with optional flags.
 ```
 python main.py -i 'guid/id from URL of MLS listings from broker/agent' \
 -l 'filename for newline-separated list of MLS #s' -f 'temporary_folder_for_listings' -s 'MLS System ID/subdomain' -g 'Google Sheets ID'
 ```
+
 The append_to_gsheet() code will attempt to open a new window or tab in your default browser. If this fails, copy the URL from the console and manually open it in your browser.
 
 If you are not already logged into your Google account, you will be prompted to log in.
