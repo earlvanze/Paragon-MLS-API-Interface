@@ -19,7 +19,7 @@ from gunicornconf import *
 
 
 # You should change these to match your own spreadsheet
-GSHEET_ID = '1QkDOfVxw0rtfB-pip oppen'
+GSHEET_ID = '1S-Vqsw_JyrCo6_zziWM_llZNl8AU92MeLZx9Xp5lMyw'
 RANGE_NAME = 'Four-Square Analysis!A:AX'
 
 # MLS_ID gets passed in by user but default is here if none passed in

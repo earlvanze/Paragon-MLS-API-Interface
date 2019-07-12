@@ -17,8 +17,8 @@ You can try out a live demo of the program at <a href="https://rentals.mymealtor
 Make your own copy of the Google spreadsheet linked above and copy your own Google Sheet's ID
 (derived from the URL https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}) to the Google Sheet ID box on the form. The only required fields are the Google Sheet ID in the field at the bottom, and the MLS number(s) pasted in the big text box.
 
-I've tested this with globalmls, imls, hudson, gamls, and triangle regions/system IDs I found on Twitter.
-Other *.paragonrels.com regions may or may not work out of the box. Change the System ID accordingly.
+I've tested this with globalmls (Eastern NY and Southern Adirondack), imls (InterMountain - Idaho), cren (SW Colorado) hudson (Hudson County, NJ), gamls (Georgia), and triangle (Triangle region, NC) regions/system IDs.
+Other *.paragonrels.com regions may or may not work out of the box. Change the System ID accordingly. parse_json() will likely need tweaking to work with your region's listing data structure.
 
 You should have an agent send you a listing from your region's MLS in order to get the GUID ("MLS ID") from the URL,
 which is used to pull the listings in that ID, but this is not necessary.
@@ -36,7 +36,7 @@ and thus, the json result from the get_properties() function is formatted differ
   general format so it can be parsed properly.
 
 
-## Prerequisites for running the app on your desktop
+## Prerequisites for running the app on your desktop (localhost)
 From https://developers.google.com/sheets/api/quickstart/python
 
 To run this program locally, you'll need:
@@ -86,7 +86,6 @@ Move this file to your working directory and rename it client_secret.json.
 ## Step 2: Install the Google Client Library and other non-standard python modules
 Run the following command in Terminal to install the necessary libraries using pip:
 ```
-pip install --upgrade pandas httplib2 google-api-python-client oauth2client
 pip install -r requirements.txt
 ```
 See the library's <a href="https://developers.google.com/api-client-library/python/start/installation">installation page</a> for the alternative installation options.
@@ -108,12 +107,19 @@ returned by get_properties() and passed in to save_csv() MUST match the number o
 
 Example: 'Four-Square Analysis!A:AX'
 
-## Step 4: Run the program
-Run the sample using the following command [optional flags]
+## Step 4a: Run the web app
+Run the Flask web server using the following command:
+```
+python main.py
+```
+
+## Step 4b: Run the program in the terminal:
+Alternatively, you could disable Flask and run it in Terminal with optional flags.
 ```
 python main.py -i 'guid/id from URL of MLS listings from broker/agent' \
 -l 'filename for newline-separated list of MLS #s' -f 'temporary_folder_for_listings' -s 'MLS System ID/subdomain' -g 'Google Sheets ID'
 ```
+
 The append_to_gsheet() code will attempt to open a new window or tab in your default browser. If this fails, copy the URL from the console and manually open it in your browser.
 
 If you are not already logged into your Google account, you will be prompted to log in.

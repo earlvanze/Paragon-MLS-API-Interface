@@ -21,9 +21,9 @@ from pprint import pformat
 
 # This information is obtained upon registration of a new Google OAuth
 # application at https://code.google.com/apis/console
-redirect_uri = 'https://localhost:8080/callback'						# for testing on local computer or Google App Engine
+#redirect_uri = 'https://localhost:8080/callback'						# for testing on local computer or Google App Engine
 #redirect_uri = 'https://api-project-32857849252.appspot.com/callback'	# for live deployment in Google App Engine
-#redirect_uri = 'https://rentals.mymealtor.com/callback'				# for live deployment with subdomain in Google App Engine
+redirect_uri = 'https://rentals.mymealtor.com/callback'				# for live deployment with subdomain in Google App Engine
 
 client_secret_filename = "client_secret.json"
 with open(client_secret_filename, 'r') as file:
