@@ -15,7 +15,7 @@
 			            data: $('form').serialize(), // serializes the form's elements.
 			            success: function (data) {
 			                console.log(data.data);
-			                alert(JSON.stringify(data.data));  // display the returned data as an alert.
+		                    location.reload();
 			            }
 			        });
 			        e.preventDefault(); // block the traditional submission of the form.
@@ -77,20 +77,20 @@
   <br>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
+                {% for message in messages %}
+                    {% if "Error" not in message[1]: %}
+                        <div class="alert alert-info">
+                        <strong>Success! </strong> {{ message[1] }}
+                            <a href="{{url_for( 'download_all')}}"> Download Listings </a>
+                        </div>
+                    {% endif %}
 
-        {% for message in messages %}
-            {% if "Error" not in message[1]: %}
-                <div class="alert alert-info">
-                <strong>Success! </strong> {{ message[1] }}
-                </div>
-            {% endif %}
-
-            {% if "Error" in message[1]: %}
-                <div class="alert alert-warning">
-                {{ message[1] }}
-                </div>
-            {% endif %}
-        {% endfor %}
+                    {% if "Error" in message[1]: %}
+                        <div class="alert alert-warning">
+                        {{ message[1] }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
             {% endif %}
         {% endwith %}
 

@@ -3,6 +3,7 @@
 import json
 import pandas as pd
 import time
+import zipfile
 import glob
 import requests
 import shutil
@@ -107,7 +108,7 @@ def user_args():
         "-d",
         "--dev",
         dest="dev_mode",
-        default=False,
+        action='store_true',
         help="Development mode changes callback to localhost instead of domain"
     )
     args.add_argument(
@@ -140,7 +141,7 @@ def user_args():
     )
     return args.parse_args()
 
-# args = user_args()
+#args = user_args()
 args = {
 	"gsheet_id": GSHEET_ID,
 	"range_name": RANGE_NAME,
@@ -148,6 +149,7 @@ args = {
 	"system_id": SYSTEM_ID,
 	"properties_folder": PROPERTIES_FOLDER,
 	"mls_list_path": None,
+    "dev_mode": False
 }
 
 def get_mls_numbers_and_cookies(mls_id = args['mls_id'], system_id = args['system_id'], mls_list = None):
@@ -428,6 +430,16 @@ def save_csv(output_data = [[None] * 50]):
     )
 
 
+def create_zip():
+    with zipfile.ZipFile('listings.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for file in glob.iglob('{}/*.json'.format(args['properties_folder'])):
+            zipf.write(file)
+
+    # opening the 'Zip' in reading mode to check
+    with zipfile.ZipFile('listings.zip', 'r') as file:
+        print(file.namelist())
+
+
 def empty_folder(properties_folder = args['properties_folder']):
     try:
         shutil.rmtree(properties_folder)
@@ -437,19 +449,20 @@ def empty_folder(properties_folder = args['properties_folder']):
         
 
 def parse_form(gsheet_id, range_name, system_id, mls_id = None, mls_list = None):
-	try:
-	    pathlib.Path(args['properties_folder']).mkdir(exist_ok=True)       # create temporary listings folder if nonexistent
-	    if not mls_id:
-	        mls_id = args['mls_id']
-	    if not system_id:
-	        system_id = args['system_id']
-	    mls_numbers = get_mls_numbers_and_cookies(mls_id, system_id, mls_list)
-	    get_properties(mls_numbers, system_id)
-	    output_data = parse_json()
-	    result = append_to_gsheet(output_data, gsheet_id, range_name)
-	#    save_csv(output_data)
-	    empty_folder()
-	    return result
-	except:
-		tb = traceback.format_exc()
-		return tb
+    try:
+        pathlib.Path(args['properties_folder']).mkdir(exist_ok=True)       # create temporary listings folder if nonexistent
+        if not mls_id:
+            mls_id = args['mls_id']
+        if not system_id:
+            system_id = args['system_id']
+        mls_numbers = get_mls_numbers_and_cookies(mls_id, system_id, mls_list)
+        get_properties(mls_numbers, system_id)
+        output_data = parse_json()
+        result = append_to_gsheet(output_data, gsheet_id, range_name)
+    #    save_csv(output_data)
+        create_zip()
+        empty_folder()
+        return result
+    except:
+        tb = traceback.format_exc()
+        return tb

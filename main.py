@@ -15,13 +15,14 @@ import json
 from functions import *
 from time import time
 from requests_oauthlib import OAuth2Session
-from flask import Flask, flash, render_template, redirect, url_for, session, request, jsonify
+from flask import Flask, flash, render_template, redirect, url_for, session, request, jsonify, send_file
 from pprint import pformat
 
+args['dev_mode'] = False
 
 # This information is obtained upon registration of a new Google OAuth
 # application at https://code.google.com/apis/console
-if (args.dev_mode):
+if args['dev_mode']:
     redirect_uri = 'https://localhost:8080/callback'						# for testing on local computer or Google App Engine
 else:
     #redirect_uri = 'https://api-project-32857849252.appspot.com/callback'	# for live deployment in Google App Engine
@@ -78,14 +79,22 @@ def analyze():
             if form.validate():
                 message = parse_form(gsheet_id, range_name, system_id, mls_id, mls_list)
                 flash(message)
-                return redirect(url_for('app'))
+                return jsonify(data={'message': message})
             else:
                 flash('Error: Some required fields are missing.')
-		flash(form.errors)
-                return redirect(url_for('app'))
-
+                flash(form.errors)
+                return jsonify(data={'message': form.errors})
+        # GET request
         return render_template('analyze.html', form=form)
     return redirect(url_for('login'))
+
+
+@ app.route('/download_all')
+def download_all():
+    return send_file('listings.zip',
+                     mimetype='zip',
+                     attachment_filename='listings.zip',
+                 as_attachment=True)
 
 
 @app.route("/login")
@@ -117,15 +126,18 @@ def callback():
     in the redirect URL. We will use that to obtain an access token.
     """
 
-    google = OAuth2Session(client_id, scope=scope, redirect_uri=redirect_uri,
-                           state=session['oauth_state'])
-    token = google.fetch_token(token_url, client_secret=client_secret,
-                               authorization_response=request.url)
+    try:
+        google = OAuth2Session(client_id, scope=scope, redirect_uri=redirect_uri,
+                               state=session['oauth_state'])
+        token = google.fetch_token(token_url, client_secret=client_secret,
+                                   authorization_response=request.url)
 
-    # We use the session as a simple DB for this example.
-    session['oauth_token'] = token
+        # We use the session as a simple DB for this example.
+        session['oauth_token'] = token
+        return redirect(url_for('analyze'))
 
-    return redirect(url_for('analyze'))
+    except KeyError:
+        return redirect(url_for('analyze'))
 
 
 @app.route("/menu", methods=["GET"])
@@ -243,4 +255,4 @@ def main():
     
 
 if __name__ == '__main__':
-	main()
+    main()
