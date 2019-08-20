@@ -104,6 +104,13 @@ def user_args():
         help="ID of Paragonrels listings from URL"
     )
     args.add_argument(
+        "-d",
+        "--dev",
+        dest="dev_mode",
+        default=False,
+        help="Development mode changes callback to localhost instead of domain"
+    )
+    args.add_argument(
         '-f',
         '--folder',
         dest='properties_folder',
@@ -212,6 +219,7 @@ def parse_json(properties_folder = args['properties_folder']):
     for i in range(len(filenames)):
         with open(filenames[i], 'r') as file:
             json_repr = file.read()
+            print(json_repr)
             data = json.loads(json_repr)
             property_info_list, schools_list, features_list, misc_list = ([] for i in range(4))
             property_info = {}

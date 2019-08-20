@@ -21,9 +21,11 @@ from pprint import pformat
 
 # This information is obtained upon registration of a new Google OAuth
 # application at https://code.google.com/apis/console
-#redirect_uri = 'https://localhost:8080/callback'						# for testing on local computer or Google App Engine
-#redirect_uri = 'https://api-project-32857849252.appspot.com/callback'	# for live deployment in Google App Engine
-redirect_uri = 'https://rentals.mymealtor.com/callback'				# for live deployment with subdomain in Google App Engine
+if (args.dev_mode):
+    redirect_uri = 'https://localhost:8080/callback'						# for testing on local computer or Google App Engine
+else:
+    #redirect_uri = 'https://api-project-32857849252.appspot.com/callback'	# for live deployment in Google App Engine
+    redirect_uri = 'https://rentals.mymealtor.com/callback'				# for live deployment with subdomain in Google App Engine
 
 client_secret_filename = "client_secret.json"
 with open(client_secret_filename, 'r') as file:
@@ -76,10 +78,11 @@ def analyze():
             if form.validate():
                 message = parse_form(gsheet_id, range_name, system_id, mls_id, mls_list)
                 flash(message)
-                return jsonify(data={'message': message})
+                return redirect(url_for('app'))
             else:
                 flash('Error: Some required fields are missing.')
-                return jsonify(data=form.errors)
+		flash(form.errors)
+                return redirect(url_for('app'))
 
         return render_template('analyze.html', form=form)
     return redirect(url_for('login'))
