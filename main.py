@@ -66,6 +66,7 @@ def index():
 @app.route("/app", methods=['GET', 'POST'])
 def analyze():
     if 'oauth_token' in session:
+        automatic_refresh()
         form = ReusableForm(request.form)
         print (form.errors)
 

@@ -28,7 +28,7 @@ MLS_ID = "6d70b762-36a4-4ac0-bedd-d0dae2920867"
 SYSTEM_ID = "GLOBALMLS"
 
 # You generally don't need to change these
-PROPERTIES_FOLDER = "listings"
+PROPERTIES_FOLDER = "/tmp"
 # {0} is the SYSTEM_ID, {1} is the MLS number for a property,
 # and {2} is a guid generated from http://{args['system_id']}.paragonrels.com/CollabLink/public/CreateGuid
 PARAGON_API_URL = "http://{0}.paragonrels.com/CollabLink/public/BlazeGetRequest?ApiAction=listing%2FGetListingDetails%2F" \
@@ -265,12 +265,12 @@ def parse_json(properties_folder = args['properties_folder']):
                         label = item.pop('Label')
                         schools[label] = item.pop('Value')
     #                    print(label, schools[label])
-                    age = DictQuery(property_info).get("Age (NOT year built)")
+                    year_built = DictQuery(property_info).get("Year Built")
                     type = DictQuery(property_info).get("Type")
-                    unit1_rent = DictQuery(property_info).get("Unit #1 Rent")
-                    unit2_rent = DictQuery(property_info).get("Unit #2 Rent")
-                    unit3_rent = DictQuery(property_info).get("Unit #3 Rent")
-                    unit4_rent = DictQuery(property_info).get("Unit #4 Rent")
+                    unit1_rent = DictQuery(property_info).get("Unit 1 Rent")
+                    unit2_rent = DictQuery(property_info).get("Unit 2 Rent")
+                    unit3_rent = DictQuery(property_info).get("Unit 3 Rent")
+                    unit4_rent = DictQuery(property_info).get("Unit 4 Rent")
                     total_taxes = int(DictQuery(property_info).get("Total Taxes").replace(",", "")) // 12
                     school_taxes = 0
                     if DictQuery(schools).get("School Taxes"):
@@ -300,7 +300,7 @@ def parse_json(properties_folder = args['properties_folder']):
                             label = item.pop('Label')
                             misc[label] = item.pop('Value')
                         #                            print(label, misc[label])
-                        age = DictQuery(misc).get("Age (NOT year built)")
+                        year_built = DictQuery(misc).get("Year Built")
                         type = DictQuery(data).get("PROP_INFO/PROP_TYPE_LONG")
                         unit1_rent = DictQuery(misc).get("Unit 1 Monthly Rent")
                         unit2_rent = DictQuery(misc).get("Unit 2 Monthly Rent")
@@ -329,7 +329,7 @@ def parse_json(properties_folder = args['properties_folder']):
                     output_data[i][2] = price_prev
                     output_data[i][3] = price_current
                     output_data[i][4] = price_current * 0.85
-                    output_data[i][9] = age
+                    output_data[i][9] = year_built
                     output_data[i][10] = xstr(type) + '\n' + xstr(beds) + 'BD' + '/' + xstr(baths_full) + '.' + xstr(baths_part) + 'BA'
                     output_data[i][11] = public_remarks + "\n{0} as of {1}-{2}-{3}".format(status, str(now.year), str(now.month), str(now.day))
                     output_data[i][12] = unit1_rent
@@ -343,7 +343,7 @@ def parse_json(properties_folder = args['properties_folder']):
     output_data = [x for x in output_data if x[0] != None]    # delete empty rows (inactive listings) from output_data
 #    print (output_data)
     return (output_data)
-    
+
 
 def append_to_gsheet(output_data=[], gsheet_id = args['gsheet_id'], range_name = RANGE_NAME):
     # Setup the Sheets API
@@ -431,12 +431,12 @@ def save_csv(output_data = [[None] * 50]):
 
 
 def create_zip():
-    with zipfile.ZipFile('listings.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
+    with zipfile.ZipFile('{}/listings.zip'.format(args['properties_folder']), 'w', zipfile.ZIP_DEFLATED) as zipf:
         for file in glob.iglob('{}/*.json'.format(args['properties_folder'])):
             zipf.write(file)
 
     # opening the 'Zip' in reading mode to check
-    with zipfile.ZipFile('listings.zip', 'r') as file:
+    with zipfile.ZipFile('{}/listings.zip'.format(args['properties_folder']), 'r') as file:
         print(file.namelist())
 
 
@@ -446,7 +446,7 @@ def empty_folder(properties_folder = args['properties_folder']):
     except:
         traceback.print_exc()
         pass
-        
+
 
 def parse_form(gsheet_id, range_name, system_id, mls_id = None, mls_list = None):
     try:
