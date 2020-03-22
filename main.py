@@ -92,7 +92,7 @@ def analyze():
 
 @ app.route('/download_all')
 def download_all():
-    return send_file('listings.zip',
+    return send_file('{}/listings.zip'.format(args['properties_folder']),
                      mimetype='zip',
                      attachment_filename='listings.zip',
                  as_attachment=True)

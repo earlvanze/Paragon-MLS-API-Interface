@@ -1,5 +1,6 @@
 # This file contains the functions and classes required to parse property listings
 
+import sys
 import json
 import pandas as pd
 import time
@@ -12,16 +13,16 @@ import traceback
 import datetime
 import pathlib
 from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
-from apiclient.discovery import build
+from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import client
-from flask import Flask, flash, render_template, redirect, url_for, session, request, jsonify
+from flask import Flask, flash, render_template, redirect, url_for, session, request, jsonify, send_file
 from gunicornconf import *
 
 
 # You should change these to match your own spreadsheet
 GSHEET_ID = '1S-Vqsw_JyrCo6_zziWM_llZNl8AU92MeLZx9Xp5lMyw'
-RANGE_NAME = 'Four-Square Analysis!A:AX'
+RANGE_NAME = 'Four-Square Analysis!A:AY'
 
 # MLS_ID gets passed in by user but default is here if none passed in
 MLS_ID = "6d70b762-36a4-4ac0-bedd-d0dae2920867"
@@ -176,10 +177,10 @@ def get_mls_numbers_and_cookies(mls_id = args['mls_id'], system_id = args['syste
     print ("Listings found from MLS ID: " + str(listings))
     print (args['mls_list_path'])
     if mls_list:
-        mls_numbers = [x.strip() for x in mls_list.split('\n')]
+        mls_numbers = [x.strip().encode('ascii', 'ignore').decode("utf-8") for x in mls_list.split('\n')]
     elif args['mls_list_path']:
         with open(args['mls_list_path'], 'r') as mls_list:
-            mls_numbers = [x.strip() for x in mls_list.read().split('\n')]
+            mls_numbers = [x.strip().encode('ascii', 'ignore').decode("utf-8") for x in mls_list.read().split('\n')]
     else:
         if listings:
             for listing in listings:
@@ -197,10 +198,11 @@ def get_properties(mls_numbers = [], system_id = args['system_id'], properties_f
     # Takes in list of MLS numbers, gets json for each property from Paragon API, and saves each json to {ADDRESS}.json
     print (mls_numbers)
     guid = requests.get("http://{0}.paragonrels.com/CollabLink/public/CreateGuid".format(system_id), headers = headers).text
-#    print ("GUID: " + GUID)
+#    print ("GUID: " + guid)
     for mls_number in mls_numbers:
+        resp = requests.get(PARAGON_API_URL.format(system_id, mls_number, guid), headers = headers)
         try:
-            resp = requests.get(PARAGON_API_URL.format(system_id, mls_number, guid), headers = headers)
+            print(resp.json(), file=sys.stderr)
             out_json = "%s.json" % (xstr(DictQuery(resp.json()).get("PROP_INFO/ADDRESS")))
             with open("{0}/{1}".format(properties_folder,out_json), 'w') as outfile:
                 outfile.write(resp.text)
@@ -439,6 +441,11 @@ def create_zip():
     with zipfile.ZipFile('{}/listings.zip'.format(args['properties_folder']), 'r') as file:
         print(file.namelist())
 
+def download_zip():
+    return send_file('{}/listings.zip'.format(args['properties_folder']),
+                     mimetype='zip',
+                     attachment_filename='listings.zip',
+                 as_attachment=True)
 
 def empty_folder(properties_folder = args['properties_folder']):
     try:
@@ -459,8 +466,9 @@ def parse_form(gsheet_id, range_name, system_id, mls_id = None, mls_list = None)
         get_properties(mls_numbers, system_id)
         output_data = parse_json()
         result = append_to_gsheet(output_data, gsheet_id, range_name)
-    #    save_csv(output_data)
+#        save_csv(output_data)
         create_zip()
+        download_zip()
         empty_folder()
         return result
     except:
