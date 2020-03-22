@@ -306,10 +306,10 @@ def parse_json(properties_folder = args['properties_folder']):
                         traceback.print_exc()
                     total_taxes = 0
                     if DictQuery(misc).get("Total Taxes"):
-                        total_taxes = int(DictQuery(misc).get("Total Taxes").replace(",", "")) // 12
+                        total_taxes = int(xstr(DictQuery(misc).get("Total Taxes")).replace("$,", "")) // 12
                     school_taxes = 0
                     if DictQuery(schools).get("School Taxes"):
-                        school_taxes = int(DictQuery(schools).get("School Taxes").replace(",", "")) // 12
+                        school_taxes = int(xstr(DictQuery(schools).get("School Taxes")).replace("$,", "")) // 12
                     status = DictQuery(data).get("PROP_INFO/STATUS_LONG")
                 except:
                     traceback.print_exc()
