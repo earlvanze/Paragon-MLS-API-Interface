@@ -280,16 +280,33 @@ def parse_json(properties_folder = args['properties_folder']):
                     status = DictQuery(property_info).get("Status")
                 except:
                     traceback.print_exc()
-                    # 2nd format, less common: [{Schools}, {Features}, {Miscellaneous}]
+                    # 2nd (new) format: [{Property Information}, {Schools}, {Features}, {Miscellaneous}]
                     try:
                         # WEIRD BUG where original data dict ended up being modified so that
                         # each object (key) in schools_list[] has no key "Label" or "Value"
                         # Solved by reloading json_repr into new dict data2
                         data2 = json.loads(json_repr)
                         list_of_dicts = DictQuery(data2).get("PROP_INFO/DetailOptions")
-                        schools_list = DictQuery(list_of_dicts[0]).get("Data")
-                        features_list = DictQuery(list_of_dicts[1]).get("Data")
-                        misc_list = DictQuery(list_of_dicts[2]).get("Data")
+                        # Convert each dictionary's data into a corresponding list
+                        misc_list = []
+
+                        for item in list_of_dicts:
+                            section_name = DictQuery(list_of_dicts[item]).get("SectionName")
+                            if section_name == "Property Information":
+                                property_info_list = DictQuery(list_of_dicts[item]).get("Data")
+                            elif section_name == "Schools":
+                                schools_list = DictQuery(list_of_dicts[item]).get("Data")
+                            elif section_name == "Features":
+                                features_list = DictQuery(list_of_dicts[item]).get("Data")
+                            elif section_name == "Miscellaneous":
+                                misc_list = DictQuery(list_of_dicts[item]).get("Data")
+                            else:
+                                print("Unused section found: {}".format(section_name), file=sys.stderr)
+
+                        for item in property_info_list:
+                            label = item.pop('Label')
+                            schools[label] = item.pop('Value')
+                        #                            print(label, info[label])
                         for item in schools_list:
                             label = item.pop('Label')
                             schools[label] = item.pop('Value')
@@ -302,12 +319,17 @@ def parse_json(properties_folder = args['properties_folder']):
                             label = item.pop('Label')
                             misc[label] = item.pop('Value')
                         #                            print(label, misc[label])
-                        year_built = DictQuery(misc).get("Year Built")
+                        sqft = DictQuery(misc).get("Above Ground SQFT")
+                        year_built = DictQuery(info).get("Year Built")
+                        style = DictQuery(features).get("STYLE")
                         type = DictQuery(data).get("PROP_INFO/PROP_TYPE_LONG")
-                        unit1_rent = DictQuery(misc).get("Unit 1 Monthly Rent")
-                        unit2_rent = DictQuery(misc).get("Unit 2 Monthly Rent")
-                        unit3_rent = DictQuery(misc).get("Unit 3 Monthly Rent")
-                        unit4_rent = DictQuery(misc).get("Unit 4 Monthly Rent")
+                        unit1_rent = DictQuery(misc).get("Unit 1 Monthly Rent").replace(",", "")
+                        unit2_rent = DictQuery(misc).get("Unit 2 Monthly Rent").replace(",", "")
+                        unit3_rent = DictQuery(misc).get("Unit 3 Monthly Rent").replace(",", "")
+                        unit4_rent = DictQuery(misc).get("Unit 4 Monthly Rent").replace(",", "")
+                        unit5_rent = DictQuery(misc).get("Unit 5 Monthly Rent").replace(",", "")
+                        unit6_rent = DictQuery(misc).get("Unit 6 Monthly Rent").replace(",", "")
+                        unit7_rent = DictQuery(misc).get("Unit 7 Monthly Rent").replace(",", "")
                         total_taxes = 0
                         if DictQuery(misc).get("Total Taxes"):
                             total_taxes = int(DictQuery(misc).get("Total Taxes").replace(",", "")) // 12
@@ -331,13 +353,16 @@ def parse_json(properties_folder = args['properties_folder']):
                     output_data[i][2] = price_prev
                     output_data[i][3] = price_current
                     output_data[i][4] = price_current * 0.85
-                    output_data[i][9] = year_built
-                    output_data[i][10] = xstr(type) + '\n' + xstr(beds) + 'BD' + '/' + xstr(baths_full) + '.' + xstr(baths_part) + 'BA'
+                    output_data[i][9] = sqft
+                    output_data[i][10] = '\n' + xstr(style) + xstr(type) + '\n' + xstr(beds) + 'BD' + '/' + xstr(baths_full) + '.' + xstr(baths_part) + 'BA\nBuilt ' + xstr(year_built)
                     output_data[i][11] = public_remarks + "\n{0} as of {1}-{2}-{3}".format(status, str(now.year), str(now.month), str(now.day))
                     output_data[i][12] = unit1_rent
                     output_data[i][13] = unit2_rent
                     output_data[i][14] = unit3_rent
                     output_data[i][15] = unit4_rent
+                    output_data[i][16] = unit5_rent
+                    output_data[i][17] = unit6_rent
+                    output_data[i][18] = unit7_rent
                     output_data[i][23] = total_taxes - school_taxes
                     output_data[i][24] = school_taxes
                 else:
