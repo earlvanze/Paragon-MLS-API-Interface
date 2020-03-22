@@ -261,10 +261,6 @@ def parse_json(properties_folder = args['properties_folder']):
                     list_of_dicts = DictQuery(data2).get("PROP_INFO/DetailOptions")
 
                     # Convert each dictionary's data into a corresponding list
-                    property_info_list = []
-                    schools_list = []
-                    features_list = []
-                    misc_list = []
                     for item in list_of_dicts:
                         section_name = DictQuery(item).get("SectionName")
                         if section_name == "Property Information":
@@ -280,7 +276,7 @@ def parse_json(properties_folder = args['properties_folder']):
 
                     for item in property_info_list:
                         label = item.pop('Label')
-                        schools[label] = item.pop('Value')
+                        property_info[label] = item.pop('Value')
                     #                            print(label, info[label])
                     for item in schools_list:
                         label = item.pop('Label')
@@ -295,7 +291,7 @@ def parse_json(properties_folder = args['properties_folder']):
                         misc[label] = item.pop('Value')
                     #                            print(label, misc[label])
                     sqft = DictQuery(misc).get("Above Ground SQFT")
-                    year_built = DictQuery(info).get("Year Built")
+                    year_built = DictQuery(property_info).get("Year Built")
                     style = DictQuery(features).get("STYLE")
                     type = DictQuery(data).get("PROP_INFO/PROP_TYPE_LONG")
                     unit1_rent = DictQuery(misc).get("Unit 1 Monthly Rent").replace(",", "")
