@@ -294,13 +294,16 @@ def parse_json(properties_folder = args['properties_folder']):
                     year_built = DictQuery(property_info).get("Year Built")
                     style = DictQuery(features).get("STYLE")
                     type = DictQuery(data).get("PROP_INFO/PROP_TYPE_LONG")
-                    unit1_rent = DictQuery(misc).get("Unit 1 Monthly Rent").replace(",", "")
-                    unit2_rent = DictQuery(misc).get("Unit 2 Monthly Rent").replace(",", "")
-                    unit3_rent = DictQuery(misc).get("Unit 3 Monthly Rent").replace(",", "")
-                    unit4_rent = DictQuery(misc).get("Unit 4 Monthly Rent").replace(",", "")
-                    unit5_rent = DictQuery(misc).get("Unit 5 Monthly Rent").replace(",", "")
-                    unit6_rent = DictQuery(misc).get("Unit 6 Monthly Rent").replace(",", "")
-                    unit7_rent = DictQuery(misc).get("Unit 7 Monthly Rent").replace(",", "")
+                    try:
+                        unit1_rent = xstr(DictQuery(misc).get("Unit 1 Monthly Rent")).replace(",", "")
+                        unit2_rent = xstr(DictQuery(misc).get("Unit 2 Monthly Rent")).replace(",", "")
+                        unit3_rent = xstr(DictQuery(misc).get("Unit 3 Monthly Rent")).replace(",", "")
+                        unit4_rent = xstr(DictQuery(misc).get("Unit 4 Monthly Rent")).replace(",", "")
+                        unit5_rent = xstr(DictQuery(misc).get("Unit 5 Monthly Rent")).replace(",", "")
+                        unit6_rent = xstr(DictQuery(misc).get("Unit 6 Monthly Rent")).replace(",", "")
+                        unit7_rent = xstr(DictQuery(misc).get("Unit 7 Monthly Rent")).replace(",", "")
+                    except:
+                        traceback.print_exc()
                     total_taxes = 0
                     if DictQuery(misc).get("Total Taxes"):
                         total_taxes = int(DictQuery(misc).get("Total Taxes").replace(",", "")) // 12
