@@ -252,94 +252,93 @@ def parse_json(properties_folder = args['properties_folder']):
                     mls_link = '=HYPERLINK("https://www.zillow.com/homes/{0}_rb/","{1}")' \
                         .format(full_address, mls_number)
                 # Two possible formats for MLS sheet encountered so far:
-                # 1st format, more common: [[Property Information], [Schools], [Features], [Miscellaneous]]
+                # 1st (new) format: [{Property Information}, {Schools}, {Features}, {Miscellaneous}]
                 try:
-                    list_of_lists = DictQuery(data).get("PROP_INFO/DetailOptions/Data")
-                    property_info_list = list_of_lists[0]
-                    schools_list = list_of_lists[1]
-    #                features_list = list_of_lists[2]
-    #                misc_list = list_of_lists[3]
+                    # WEIRD BUG where original data dict ended up being modified so that
+                    # each object (key) in schools_list[] has no key "Label" or "Value"
+                    # Solved by reloading json_repr into new dict data2
+                    data2 = json.loads(json_repr)
+                    list_of_dicts = DictQuery(data2).get("PROP_INFO/DetailOptions")
+                    # Convert each dictionary's data into a corresponding list
+                    misc_list = []
+
+                    for item in list_of_dicts:
+                        section_name = DictQuery(list_of_dicts[item]).get("SectionName")
+                        if section_name == "Property Information":
+                            property_info_list = DictQuery(list_of_dicts[item]).get("Data")
+                        elif section_name == "Schools":
+                            schools_list = DictQuery(list_of_dicts[item]).get("Data")
+                        elif section_name == "Features":
+                            features_list = DictQuery(list_of_dicts[item]).get("Data")
+                        elif section_name == "Miscellaneous":
+                            misc_list = DictQuery(list_of_dicts[item]).get("Data")
+                        else:
+                            print("Unused section found: {}".format(section_name), file=sys.stderr)
+
                     for item in property_info_list:
                         label = item.pop('Label')
-                        property_info[label] = item.pop('Value')
-    #                    print(label, property_info[label])
+                        schools[label] = item.pop('Value')
+                    #                            print(label, info[label])
                     for item in schools_list:
                         label = item.pop('Label')
                         schools[label] = item.pop('Value')
-    #                    print(label, schools[label])
-                    year_built = DictQuery(property_info).get("Year Built")
-                    type = DictQuery(property_info).get("Type")
-                    unit1_rent = DictQuery(property_info).get("Unit 1 Rent")
-                    unit2_rent = DictQuery(property_info).get("Unit 2 Rent")
-                    unit3_rent = DictQuery(property_info).get("Unit 3 Rent")
-                    unit4_rent = DictQuery(property_info).get("Unit 4 Rent")
-                    total_taxes = int(DictQuery(property_info).get("Total Taxes").replace(",", "")) // 12
+                    #                            print(label, schools[label])
+                    for item in features_list:
+                        label = item.pop('Label')
+                        features[label] = item.pop('Value')
+                    #                            print(label, features[label])
+                    for item in misc_list:
+                        label = item.pop('Label')
+                        misc[label] = item.pop('Value')
+                    #                            print(label, misc[label])
+                    sqft = DictQuery(misc).get("Above Ground SQFT")
+                    year_built = DictQuery(info).get("Year Built")
+                    style = DictQuery(features).get("STYLE")
+                    type = DictQuery(data).get("PROP_INFO/PROP_TYPE_LONG")
+                    unit1_rent = DictQuery(misc).get("Unit 1 Monthly Rent").replace(",", "")
+                    unit2_rent = DictQuery(misc).get("Unit 2 Monthly Rent").replace(",", "")
+                    unit3_rent = DictQuery(misc).get("Unit 3 Monthly Rent").replace(",", "")
+                    unit4_rent = DictQuery(misc).get("Unit 4 Monthly Rent").replace(",", "")
+                    unit5_rent = DictQuery(misc).get("Unit 5 Monthly Rent").replace(",", "")
+                    unit6_rent = DictQuery(misc).get("Unit 6 Monthly Rent").replace(",", "")
+                    unit7_rent = DictQuery(misc).get("Unit 7 Monthly Rent").replace(",", "")
+                    total_taxes = 0
+                    if DictQuery(misc).get("Total Taxes"):
+                        total_taxes = int(DictQuery(misc).get("Total Taxes").replace(",", "")) // 12
                     school_taxes = 0
                     if DictQuery(schools).get("School Taxes"):
                         school_taxes = int(DictQuery(schools).get("School Taxes").replace(",", "")) // 12
-                    status = DictQuery(property_info).get("Status")
+                    status = DictQuery(data).get("PROP_INFO/STATUS_LONG")
                 except:
                     traceback.print_exc()
-                    # 2nd (new) format: [{Property Information}, {Schools}, {Features}, {Miscellaneous}]
+                    # 2nd (old) format, now less common: [[Property Information], [Schools], [Features], [Miscellaneous]]
                     try:
-                        # WEIRD BUG where original data dict ended up being modified so that
-                        # each object (key) in schools_list[] has no key "Label" or "Value"
-                        # Solved by reloading json_repr into new dict data2
-                        data2 = json.loads(json_repr)
-                        list_of_dicts = DictQuery(data2).get("PROP_INFO/DetailOptions")
-                        # Convert each dictionary's data into a corresponding list
-                        misc_list = []
-
-                        for item in list_of_dicts:
-                            section_name = DictQuery(list_of_dicts[item]).get("SectionName")
-                            if section_name == "Property Information":
-                                property_info_list = DictQuery(list_of_dicts[item]).get("Data")
-                            elif section_name == "Schools":
-                                schools_list = DictQuery(list_of_dicts[item]).get("Data")
-                            elif section_name == "Features":
-                                features_list = DictQuery(list_of_dicts[item]).get("Data")
-                            elif section_name == "Miscellaneous":
-                                misc_list = DictQuery(list_of_dicts[item]).get("Data")
-                            else:
-                                print("Unused section found: {}".format(section_name), file=sys.stderr)
-
+                        list_of_lists = DictQuery(data).get("PROP_INFO/DetailOptions/Data")
+                        property_info_list = list_of_lists[0]
+                        schools_list = list_of_lists[1]
+                        #                features_list = list_of_lists[2]
+                        #                misc_list = list_of_lists[3]
                         for item in property_info_list:
                             label = item.pop('Label')
-                            schools[label] = item.pop('Value')
-                        #                            print(label, info[label])
+                            property_info[label] = item.pop('Value')
+                        #                    print(label, property_info[label])
                         for item in schools_list:
                             label = item.pop('Label')
                             schools[label] = item.pop('Value')
-                        #                            print(label, schools[label])
-                        for item in features_list:
-                            label = item.pop('Label')
-                            features[label] = item.pop('Value')
-                        #                            print(label, features[label])
-                        for item in misc_list:
-                            label = item.pop('Label')
-                            misc[label] = item.pop('Value')
-                        #                            print(label, misc[label])
-                        sqft = DictQuery(misc).get("Above Ground SQFT")
-                        year_built = DictQuery(info).get("Year Built")
-                        style = DictQuery(features).get("STYLE")
-                        type = DictQuery(data).get("PROP_INFO/PROP_TYPE_LONG")
-                        unit1_rent = DictQuery(misc).get("Unit 1 Monthly Rent").replace(",", "")
-                        unit2_rent = DictQuery(misc).get("Unit 2 Monthly Rent").replace(",", "")
-                        unit3_rent = DictQuery(misc).get("Unit 3 Monthly Rent").replace(",", "")
-                        unit4_rent = DictQuery(misc).get("Unit 4 Monthly Rent").replace(",", "")
-                        unit5_rent = DictQuery(misc).get("Unit 5 Monthly Rent").replace(",", "")
-                        unit6_rent = DictQuery(misc).get("Unit 6 Monthly Rent").replace(",", "")
-                        unit7_rent = DictQuery(misc).get("Unit 7 Monthly Rent").replace(",", "")
-                        total_taxes = 0
-                        if DictQuery(misc).get("Total Taxes"):
-                            total_taxes = int(DictQuery(misc).get("Total Taxes").replace(",", "")) // 12
+                        #                    print(label, schools[label])
+                        year_built = DictQuery(property_info).get("Year Built")
+                        type = DictQuery(property_info).get("Type")
+                        unit1_rent = DictQuery(property_info).get("Unit 1 Rent")
+                        unit2_rent = DictQuery(property_info).get("Unit 2 Rent")
+                        unit3_rent = DictQuery(property_info).get("Unit 3 Rent")
+                        unit4_rent = DictQuery(property_info).get("Unit 4 Rent")
+                        total_taxes = int(DictQuery(property_info).get("Total Taxes").replace(",", "")) // 12
                         school_taxes = 0
                         if DictQuery(schools).get("School Taxes"):
                             school_taxes = int(DictQuery(schools).get("School Taxes").replace(",", "")) // 12
-                        status = DictQuery(data).get("PROP_INFO/STATUS_LONG")
+                        status = DictQuery(property_info).get("Status")
                     except:
                         traceback.print_exc()
-                        continue
                     continue
             except:
                 traceback.print_exc()
