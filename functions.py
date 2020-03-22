@@ -295,8 +295,8 @@ def parse_json(properties_folder = args['properties_folder']):
                     year_built = DictQuery(property_info).get("Year Built")
                     style = DictQuery(features).get("STYLE")
                     type = DictQuery(data).get("PROP_INFO/PROP_TYPE_LONG")
-                    total_taxes = ''
-                    school_taxes = ''
+                    total_taxes = 0
+                    school_taxes = 0
                     try:
                         unit1_rent = xstr(DictQuery(misc).get("Unit 1 Monthly Rent")).replace(",", "")
                         unit2_rent = xstr(DictQuery(misc).get("Unit 2 Monthly Rent")).replace(",", "")
