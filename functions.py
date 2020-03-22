@@ -265,16 +265,16 @@ def parse_json(properties_folder = args['properties_folder']):
                     schools_list = []
                     features_list = []
                     misc_list = []
-                    for i in list_of_dicts:
-                        section_name = DictQuery(list_of_dicts[i]).get("SectionName")
+                    for item in list_of_dicts:
+                        section_name = DictQuery(item).get("SectionName")
                         if section_name == "Property Information":
-                            property_info_list = DictQuery(list_of_dicts[i]).get("Data")
+                            property_info_list = DictQuery(item).get("Data")
                         elif section_name == "Schools":
-                            schools_list = DictQuery(list_of_dicts[i]).get("Data")
+                            schools_list = DictQuery(item).get("Data")
                         elif section_name == "Features":
-                            features_list = DictQuery(list_of_dicts[i]).get("Data")
+                            features_list = DictQuery(item).get("Data")
                         elif section_name == "Miscellaneous":
-                            misc_list = DictQuery(list_of_dicts[i]).get("Data")
+                            misc_list = DictQuery(item).get("Data")
                         else:
                             print("Unused section found: {}".format(section_name), file=sys.stderr)
 
