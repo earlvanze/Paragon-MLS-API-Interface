@@ -265,16 +265,16 @@ def parse_json(properties_folder = args['properties_folder']):
                     schools_list = []
                     features_list = []
                     misc_list = []
-                    for item in list_of_dicts:
-                        section_name = DictQuery(list_of_dicts[item]).get("SectionName")
+                    for i in list_of_dicts:
+                        section_name = DictQuery(list_of_dicts[i]).get("SectionName")
                         if section_name == "Property Information":
-                            property_info_list = DictQuery(list_of_dicts[item]).get("Data")
+                            property_info_list = DictQuery(list_of_dicts[i]).get("Data")
                         elif section_name == "Schools":
-                            schools_list = DictQuery(list_of_dicts[item]).get("Data")
+                            schools_list = DictQuery(list_of_dicts[i]).get("Data")
                         elif section_name == "Features":
-                            features_list = DictQuery(list_of_dicts[item]).get("Data")
+                            features_list = DictQuery(list_of_dicts[i]).get("Data")
                         elif section_name == "Miscellaneous":
-                            misc_list = DictQuery(list_of_dicts[item]).get("Data")
+                            misc_list = DictQuery(list_of_dicts[i]).get("Data")
                         else:
                             print("Unused section found: {}".format(section_name), file=sys.stderr)
 
@@ -294,7 +294,7 @@ def parse_json(properties_folder = args['properties_folder']):
                         label = item.pop('Label')
                         misc[label] = item.pop('Value')
                     #                            print(label, misc[label])
-                    sqft = xstr(DictQuery(misc).get("Above Ground SQFT"))
+                    sqft = DictQuery(misc).get("Above Ground SQFT")
                     year_built = DictQuery(info).get("Year Built")
                     style = DictQuery(features).get("STYLE")
                     type = DictQuery(data).get("PROP_INFO/PROP_TYPE_LONG")
