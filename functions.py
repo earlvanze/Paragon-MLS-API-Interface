@@ -1,6 +1,7 @@
 # This file contains the functions and classes required to parse property listings
 
 import sys
+import re
 import json
 import pandas as pd
 import time
@@ -294,8 +295,8 @@ def parse_json(properties_folder = args['properties_folder']):
                     year_built = DictQuery(property_info).get("Year Built")
                     style = DictQuery(features).get("STYLE")
                     type = DictQuery(data).get("PROP_INFO/PROP_TYPE_LONG")
-                    total_taxes = 0
-                    school_taxes = 0
+                    total_taxes = ''
+                    school_taxes = ''
                     try:
                         unit1_rent = xstr(DictQuery(misc).get("Unit 1 Monthly Rent")).replace(",", "")
                         unit2_rent = xstr(DictQuery(misc).get("Unit 2 Monthly Rent")).replace(",", "")
@@ -306,10 +307,12 @@ def parse_json(properties_folder = args['properties_folder']):
                         unit7_rent = xstr(DictQuery(misc).get("Unit 7 Monthly Rent")).replace(",", "")
                     except:
                         traceback.print_exc()
-                    if DictQuery(misc).get("Total Taxes"):
-                        total_taxes = int(xstr(DictQuery(misc).get("Total Taxes")).replace("$,", "")) // 12
+                    if DictQuery(property_info).get("Total Taxes"):
+                        tax_str = re.sub(r'[^0-9]', '', xstr(DictQuery(property_info).get("Total Taxes")))
+                        total_taxes = int(tax_str) // 12
                     if DictQuery(schools).get("School Taxes"):
-                        school_taxes = int(xstr(DictQuery(schools).get("School Taxes")).replace("$,", "")) // 12
+                        school_tax_str = re.sub(r'[^0-9]', '', xstr(DictQuery(property_info).get("School Taxes")))
+                        school_taxes = int(school_tax_str) // 12
                     status = DictQuery(data).get("PROP_INFO/STATUS_LONG")
                 except:
                     traceback.print_exc()
@@ -334,10 +337,14 @@ def parse_json(properties_folder = args['properties_folder']):
                         unit2_rent = DictQuery(property_info).get("Unit 2 Rent")
                         unit3_rent = DictQuery(property_info).get("Unit 3 Rent")
                         unit4_rent = DictQuery(property_info).get("Unit 4 Rent")
-                        total_taxes = int(xstr(DictQuery(property_info).get("Total Taxes")).replace("$,", "")) // 12
+                        total_taxes = 0
+                        if DictQuery(property_info).get("Total Taxes"):
+                            tax_str = re.sub(r'[^0-9]', '', xstr(DictQuery(property_info).get("Total Taxes")))
+                            total_taxes = int(tax_str) / 12
                         school_taxes = 0
                         if DictQuery(schools).get("School Taxes"):
-                            school_taxes = int(DictQuery(schools).get("School Taxes").replace("$,", "")) // 12
+                            school_tax_str = re.sub(r'[^0-9]', '', xstr(DictQuery(property_info).get("School Taxes")))
+                            school_taxes = int(school_tax_str) / 12
                         status = DictQuery(property_info).get("Status")
                     except:
                         traceback.print_exc()
