@@ -310,16 +310,16 @@ def parse_json(properties_folder = args['properties_folder']):
                         traceback.print_exc()
                     try:
                         tax_str = re.sub(r'[^0-9]', '', xstr(DictQuery(misc).get("Total Taxes")))
-                        print(tax_str)
+                        print(tax_str, file=sys.stderr)
                         total_taxes = int(tax_str) / 12
-                        print(total_taxes)
+                        print(total_taxes, file=sys.stderr)
                     except:
                         traceback.print_exc()
                     try:
                         school_tax_str = re.sub(r'[^0-9]', '', xstr(DictQuery(schools).get("School Taxes")))
-                        print(tax_str)
+                        print(tax_str, file=sys.stderr)
                         school_taxes = int(school_tax_str) / 12
-                        print(total_taxes)
+                        print(total_taxes, file=sys.stderr)
                     except:
                         traceback.print_exc()
                 except:
@@ -373,7 +373,7 @@ def parse_json(properties_folder = args['properties_folder']):
                     output_data[i][3] = price_current
                     output_data[i][4] = price_current * 0.85
                     output_data[i][9] = sqft
-                    output_data[i][10] = '\n' + xstr(style) + xstr(type) + '\n' + xstr(beds) + 'BD' + '/' + xstr(baths_full) + '.' + xstr(baths_part) + 'BA\nBuilt ' + xstr(year_built)
+                    output_data[i][10] = '\n' + xstr(style) + '\n' + xstr(type) + '\n' + xstr(beds) + 'BD' + '/' + xstr(baths_full) + '.' + xstr(baths_part) + 'BA\nBuilt ' + xstr(year_built)
                     output_data[i][11] = public_remarks + "\n{0} as of {1}-{2}-{3}".format(status, str(now.year), str(now.month), str(now.day))
                     output_data[i][12] = unit1_rent
                     output_data[i][13] = unit2_rent
