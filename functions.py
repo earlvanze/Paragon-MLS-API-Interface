@@ -310,12 +310,16 @@ def parse_json(properties_folder = args['properties_folder']):
                         traceback.print_exc()
                     try:
                         tax_str = re.sub(r'[^0-9]', '', xstr(DictQuery(misc).get("Total Taxes")))
+                        print(tax_str)
                         total_taxes = int(tax_str) / 12
+                        print(total_taxes)
                     except:
                         traceback.print_exc()
                     try:
                         school_tax_str = re.sub(r'[^0-9]', '', xstr(DictQuery(schools).get("School Taxes")))
+                        print(tax_str)
                         school_taxes = int(school_tax_str) / 12
+                        print(total_taxes)
                     except:
                         traceback.print_exc()
                 except:
