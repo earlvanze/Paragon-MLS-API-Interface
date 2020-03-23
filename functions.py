@@ -295,6 +295,9 @@ def parse_json(properties_folder = args['properties_folder']):
                     year_built = DictQuery(property_info).get("Year Built")
                     style = DictQuery(features).get("STYLE")
                     type = DictQuery(data).get("PROP_INFO/PROP_TYPE_LONG")
+                    status = DictQuery(data).get("PROP_INFO/STATUS_LONG")
+                    total_taxes = 0
+                    school_taxes = 0
                     try:
                         unit1_rent = xstr(DictQuery(misc).get("Unit 1 Monthly Rent")).replace(",", "")
                         unit2_rent = xstr(DictQuery(misc).get("Unit 2 Monthly Rent")).replace(",", "")
@@ -305,15 +308,16 @@ def parse_json(properties_folder = args['properties_folder']):
                         unit7_rent = xstr(DictQuery(misc).get("Unit 7 Monthly Rent")).replace(",", "")
                     except:
                         traceback.print_exc()
-                    total_taxes = 0
-                    if DictQuery(property_info).get("Total Taxes"):
+                    try:
                         tax_str = re.sub(r'[^0-9]', '', xstr(DictQuery(misc).get("Total Taxes")))
                         total_taxes = int(tax_str) / 12
-                    school_taxes = 0
-                    if DictQuery(schools).get("School Taxes"):
+                    except:
+                        traceback.print_exc()
+                    try:
                         school_tax_str = re.sub(r'[^0-9]', '', xstr(DictQuery(schools).get("School Taxes")))
                         school_taxes = int(school_tax_str) / 12
-                    status = DictQuery(data).get("PROP_INFO/STATUS_LONG")
+                    except:
+                        traceback.print_exc()
                 except:
                     traceback.print_exc()
                     # 2nd (old) format, now less common: [[Property Information], [Schools], [Features], [Miscellaneous]]
@@ -500,11 +504,11 @@ def parse_form(gsheet_id, range_name, system_id, mls_id = None, mls_list = None)
             system_id = args['system_id']
         mls_numbers = get_mls_numbers_and_cookies(mls_id, system_id, mls_list)
         get_properties(mls_numbers, system_id)
+        create_zip()
+        download_zip()
         output_data = parse_json()
         result = append_to_gsheet(output_data, gsheet_id, range_name)
 #        save_csv(output_data)
-        create_zip()
-        download_zip()
         empty_folder()
         return result
     except:
