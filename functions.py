@@ -341,6 +341,7 @@ def parse_json(properties_folder = args['properties_folder']):
                         #                    print(label, schools[label])
                         year_built = DictQuery(property_info).get("Year Built")
                         type = DictQuery(property_info).get("Type")
+                        status = DictQuery(property_info).get("Status")
                         unit1_rent = xstr(DictQuery(property_info).get("Unit 1 Rent")).replace(",", "")
                         unit2_rent = xstr(DictQuery(property_info).get("Unit 2 Rent")).replace(",", "")
                         unit3_rent = xstr(DictQuery(property_info).get("Unit 3 Rent")).replace(",", "")
@@ -349,14 +350,17 @@ def parse_json(properties_folder = args['properties_folder']):
                         unit6_rent = xstr(DictQuery(property_info).get("Unit 6 Rent")).replace(",", "")
                         unit7_rent = xstr(DictQuery(property_info).get("Unit 7 Rent")).replace(",", "")
                         total_taxes = 0
-                        if DictQuery(misc).get("Total Taxes"):
+                        school_taxes = 0
+                        try:
                             tax_str = re.sub(r'[^0-9]', '', xstr(DictQuery(property_info).get("Total Taxes")))
                             total_taxes = int(tax_str) / 12
-                        school_taxes = 0
-                        if DictQuery(schools).get("School Taxes"):
+                        except:
+                            traceback.print_exc()
+                        try:
                             school_tax_str = re.sub(r'[^0-9]', '', xstr(DictQuery(property_info).get("School Taxes")))
                             school_taxes = int(school_tax_str) / 12
-                        status = DictQuery(property_info).get("Status")
+                        except:
+                            traceback.print_exc()
                     except:
                         traceback.print_exc()
                     continue
