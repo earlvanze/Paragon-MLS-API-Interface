@@ -26,7 +26,7 @@ if args['dev_mode']:
     redirect_uri = 'https://localhost:8080/callback'						# for testing on local computer or Google App Engine
 else:
     #redirect_uri = 'https://api-project-32857849252.appspot.com/callback'	# for live deployment in Google App Engine
-    redirect_uri = 'https://rentals.mymealtor.com/callback'				# for live deployment with subdomain in Google App Engine
+    redirect_uri = 'https://rentals.earlyrewirement.com/callback'				# for live deployment with subdomain in Google App Engine
 
 client_secret_filename = "client_secret.json"
 with open(client_secret_filename, 'r') as file:
